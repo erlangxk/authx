@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <None Remove="scripts\V0_1_0_0__Create_Clients_Table.sql" />
+      <EmbeddedResource Include="scripts\V0_1_0_0__Create_Clients_Table.sql" />
+      <None Remove="scripts\V0_1_0_0__Create_Operators_Table.sql" />
+      <EmbeddedResource Include="scripts\V0_1_0_1__Create_Operators_Table.sql" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Evolve" Version="3.1.0" />
+      <PackageReference Include="Microsoft.Data.Sqlite" Version="7.0.3" />
+      <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
+      <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="7.0.0" />
+    </ItemGroup>
+
+</Project>

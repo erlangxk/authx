@@ -2,6 +2,9 @@
 bin/
 obj/
 
+*.sqlite
+*.db
+
 *.DotSettings.user
 coveragereport/
 TestResults/

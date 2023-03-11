@@ -5,12 +5,15 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="MySQLite.fs" />
         <Compile Include="MyEndPoints.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Falco" Version="4.0.3" />
+        <PackageReference Include="Microsoft.Data.Sqlite" Version="7.0.3" />
+        <PackageReference Include="Donald" Version="9.0.1" />
     </ItemGroup>
 
 </Project>
