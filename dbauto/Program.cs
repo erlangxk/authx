@@ -16,7 +16,6 @@ public class Program
 
         const string DBFile = "/Users/simonking/Microsoft/authx/authx.sqlite";
 
-        private SqliteConnection? _cnx;
 
         public EvolveHostedService(ILogger<EvolveHostedService> logger)
         {
@@ -27,11 +26,12 @@ public class Program
         {
             _logger.LogInformation("1. StartAsync has been called.");
             var connectionString = $"Data Source={DBFile};";
-            _cnx = new SqliteConnection(connectionString);
+
             try
             {
+                using var cnx = new SqliteConnection(connectionString);
                 _logger.LogInformation("connectionString is {connectionString}", connectionString);
-                var evolve = new Evolve(_cnx, msg => _logger.LogInformation("evolve logging: {msg}", msg))
+                var evolve = new Evolve(cnx, msg => _logger.LogInformation("evolve logging: {msg}", msg))
                 {
                     EmbeddedResourceAssemblies = new[] { Assembly.GetExecutingAssembly() }
                 };
@@ -48,7 +48,6 @@ public class Program
         public Task StopAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("4. StopAsync has been called.");
-            _cnx?.Close();
             return Task.CompletedTask;
         }
     }

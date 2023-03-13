@@ -1,22 +1,21 @@
 namespace authx
 
 open System.Data
-open Microsoft.Data.Sqlite
 open Donald
 
 module Domain =
     type Client =
         { Id: string
           Secret: string
-          Enabled: bool }
+          Enabled: int }
 
     type Operator =
         { Name: string
           AuthUrl: string
-          Enabled: bool }
+          Enabled: int }
 
     type OperatorPrincipal =
-        { Name: string
+        { OperatorName: string
           ClientId: string
           ClientSecret: string }
 
@@ -26,38 +25,53 @@ module MySQLite =
     let readClient (rd: IDataReader) : Client =
         { Id = rd.ReadString "client_id"
           Secret = rd.ReadString "client_secret"
-          Enabled = rd.ReadBoolean "enabled" }
+          Enabled = rd.ReadInt32 "enabled" }
+
+    let getClientById (clientId: string) =
+        Db.newCommand "SELECT * FROM clients where client_id = @client_id"
+        >> Db.setParams [ "client_id", SqlType.String clientId ]
+        >> Db.Async.querySingle readClient
+
+    let insertClient (client: Client) =
+        Db.newCommand "INSERT INTO clients (client_id, client_secret, enabled) VALUES (@client_id, @client_secret,@enabled)"
+        >> Db.setParams
+            [ "client_id", SqlType.String client.Id
+              "client_secret", SqlType.String client.Secret
+              "enabled", SqlType.Int client.Enabled]
+        >> Db.Async.exec
 
     let readOperator (rd: IDataReader) : Operator =
         { Name = rd.ReadString "name"
           AuthUrl = rd.ReadString "auth_url"
-          Enabled = rd.ReadBoolean "enabled" }
+          Enabled = rd.ReadInt32 "enabled" }
 
-    let readOperatorPrincipal (rd: IDataReader) : Operator =
-        { Name = rd.ReadString "name"
-          AuthUrl = rd.ReadString "client_id"
-          Enabled = rd.ReadBoolean "client_secret" }
+    let getOperatorByName (name: string) =
+        Db.newCommand "select * from operators where name = @name"
+        >> Db.setParams [ "name", SqlType.String name ]
+        >> Db.Async.querySingle readOperator
 
-    let getClientById (clientId: string) (conn: SqliteConnection) =
-        let sql = "SELECT * FROM clients where client_id = @client_id"
+    let insertOperator (operator: Operator) =
+        Db.newCommand "insert into operators (name, auth_url) values (@name, @auth_url)"
+        >> Db.setParams
+            [ "name", SqlType.String operator.Name
+              "auth_url", SqlType.String operator.AuthUrl ]
+        >> Db.exec
 
-        conn
-        |> Db.newCommand sql
-        |> Db.setParams [ "client_id", SqlType.String clientId ]
-        |> Db.Async.querySingle readClient
+    let readOperatorPrincipal (rd: IDataReader) : OperatorPrincipal =
+        { OperatorName = rd.ReadString "operator_name"
+          ClientId = rd.ReadString "client_id"
+          ClientSecret = rd.ReadString "client_secret" }
+    
+    let getOperatorPrincipalByName (operatorName: string) =
+        Db.newCommand "select * from operator_principals where operator_name = @operatorName"
+        >> Db.setParams [ "operatorName", SqlType.String operatorName ]
+        >> Db.Async.querySingle readOperator
 
-    let getOperatorByName (name: string) (conn: SqliteConnection) =
-        let sql = "select * from operators where name = @name"
-
-        conn
-        |> Db.newCommand sql
-        |> Db.setParams [ "name", SqlType.String name ]
-        |> Db.Async.querySingle readOperator
-
-    let getOperatorPrincipalByName (name: string) (conn: SqliteConnection) =
-        let sql = "select * from operator_principals where name = @name"
-
-        conn
-        |> Db.newCommand sql
-        |> Db.setParams [ "name", SqlType.String name ]
-        |> Db.Async.querySingle readOperator
+    let insertOperatorPrincipal (operatorPrincipal: OperatorPrincipal) =
+        Db.newCommand
+            "insert into operator_principals (operator_name, client_id, client_secret) values (@operator_name, @client_id, @client_secret)"
+        >> Db.setParams
+            [ "operator_name", SqlType.String operatorPrincipal.OperatorName
+              "client_id", SqlType.String operatorPrincipal.ClientId
+              "client_secret", SqlType.String operatorPrincipal.ClientSecret ]
+        >> Db.Async.exec
