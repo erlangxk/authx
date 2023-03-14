@@ -5,7 +5,9 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="Core.fs" />
         <Compile Include="MySQLite.fs" />
+        <Compile Include="SharedHandlers.fs" />
         <Compile Include="MyEndPoints.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>

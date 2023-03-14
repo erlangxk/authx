@@ -5,17 +5,22 @@ open Falco.Routing
 
 module MyEndPoints =
 
-    let unauthorized: HttpHandler =
-        Response.withStatusCode 401 >> Response.ofPlainText "Unauthorized"
+    let authHandler: HttpHandler =
+        fun ctx ->
+            let q = Request.getQuery ctx
 
-    let forbidden: HttpHandler =
-        Response.withStatusCode 403 >> Response.ofPlainText "Forbidden"
-
-    let badRequest: HttpHandler =
-        Response.withStatusCode 400 >> Response.ofPlainText "Bad request"
-
-    let serverError: HttpHandler =
-        Response.withStatusCode 500 >> Response.ofPlainText "Server Error"
+            let processAuth (sign: string) (authReq: Core.AuthRequest) =
+                //authReq.ClientId
+                //send a jwt token back to
+                Response.ofPlainText $"{authReq.ClientId}#{sign}"
 
 
-    let lists: list<HttpEndpoint> = [ get "/" (Response.ofPlainText "Hello World") ]
+            let handler =
+                match q.TryGet("sign") with
+                | None -> SharedHandlers.badRequest
+                | Some(sign) -> Request.mapJson (processAuth sign)
+
+            handler ctx
+
+    let lists: list<HttpEndpoint> =
+        [ get "/" (Response.ofPlainText "Hello World"); post "/auth" authHandler ]
