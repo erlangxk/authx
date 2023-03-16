@@ -36,7 +36,7 @@ module MyStorage =
             let connStr = config["DB:ConnStr"]
             logger.LogInformation("database connection is {connStr}", connStr)
             use ds = NpgsqlDataSource.Create(connStr)
-            loadAllData logger ds |||> createStorage
+            loadAllData logger ds |||> createMemoryStorage
 
         member this.get() = store
 

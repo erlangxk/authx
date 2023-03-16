@@ -10,6 +10,7 @@
     <ItemGroup>
         <Compile Include="WebApiTests.fs" />
         <Compile Include="DbTests.fs" />
+        <Compile Include="JwtTests.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>
 
