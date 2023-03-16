@@ -19,7 +19,7 @@ let testAuth () =
             json
                 """
                 {
-                "clientId":"client",
+                "clientId":"first_client",
                 "operator":"operator",
                 "token":"token"
                    }

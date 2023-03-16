@@ -2,25 +2,9 @@ namespace authx
 
 open System.Data
 open Donald
+open Domain
 
-module Domain =
-    type Client =
-        { Id: string
-          Secret: string
-          Enabled: int }
-
-    type Operator =
-        { Name: string
-          AuthUrl: string
-          Enabled: int }
-
-    type OperatorPrincipal =
-        { OperatorName: string
-          ClientId: string
-          ClientSecret: string }
-
-module MySQLite =
-    open Domain
+module MyDatabase =
 
     let readClient (rd: IDataReader) : Client =
         { Id = rd.ReadString "client_id"
@@ -32,12 +16,16 @@ module MySQLite =
         >> Db.setParams [ "client_id", SqlType.String clientId ]
         >> Db.Async.querySingle readClient
 
+    let loadAllClients conn =
+        conn |> Db.newCommand "SELECT * FROM clients" |> Db.Async.query readClient
+
     let insertClient (client: Client) =
-        Db.newCommand "INSERT INTO clients (client_id, client_secret, enabled) VALUES (@client_id, @client_secret,@enabled)"
+        Db.newCommand
+            "INSERT INTO clients (client_id, client_secret, enabled) VALUES (@client_id, @client_secret,@enabled)"
         >> Db.setParams
             [ "client_id", SqlType.String client.Id
               "client_secret", SqlType.String client.Secret
-              "enabled", SqlType.Int client.Enabled]
+              "enabled", SqlType.Int client.Enabled ]
         >> Db.Async.exec
 
     let readOperator (rd: IDataReader) : Operator =
@@ -50,6 +38,9 @@ module MySQLite =
         >> Db.setParams [ "name", SqlType.String name ]
         >> Db.Async.querySingle readOperator
 
+    let loadAllOperators conn =
+        conn |> Db.newCommand "select * from operators" |> Db.Async.query readOperator
+
     let insertOperator (operator: Operator) =
         Db.newCommand "insert into operators (name, auth_url) values (@name, @auth_url)"
         >> Db.setParams
@@ -61,11 +52,17 @@ module MySQLite =
         { OperatorName = rd.ReadString "operator_name"
           ClientId = rd.ReadString "client_id"
           ClientSecret = rd.ReadString "client_secret" }
-    
+
     let getOperatorPrincipalByName (operatorName: string) =
         Db.newCommand "select * from operator_principals where operator_name = @operatorName"
         >> Db.setParams [ "operatorName", SqlType.String operatorName ]
         >> Db.Async.querySingle readOperator
+
+    let loadAllOperatorPrincipals conn =
+        conn
+        |> Db.newCommand "select * from operator_principals"
+        |> Db.Async.query readOperatorPrincipal
+
 
     let insertOperatorPrincipal (operatorPrincipal: OperatorPrincipal) =
         Db.newCommand

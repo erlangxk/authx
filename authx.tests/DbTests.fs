@@ -1,55 +1,57 @@
 module Tests
 
 open System
-open Microsoft.Data.Sqlite
+open Npgsql
 open Xunit
 open authx
 open authx.Domain
 
-let connStr = "Data Source=/Users/simonking/Microsoft/authx/authx.sqlite;"
 
-let connectionString = "Data Source=MyReadonlyMemoryDb;Mode=Memory;Cache=Shared";
+let connectionString =
+    "Host=localhost;Database=postgres;Username=postgres;Password=mysecretpassword"
 
 type MySQLiteTests() as self =
-    let conn =
-        use fileDb = new SqliteConnection(connStr)
-        fileDb.Open()
-        fileDb
-        |> MySQLite.insertClient({Client.Id="first_client"; Secret="first_secret"; Enabled = 0})
+
+    let ds = NpgsqlDataSource.Create(connectionString)
+
+    do
+        use conn = ds.OpenConnection()
+
+        conn
+        |> MyDatabase.insertClient (
+            { Client.Id = "first_client"
+              Secret = "first_secret"
+              Enabled = 0 }
+        )
         |> ignore
-        
-        fileDb
-        |> MySQLite.insertClient({Client.Id="second_client"; Secret="second_secret"; Enabled = 0})
+
+        conn
+        |> MyDatabase.insertClient (
+            { Client.Id = "second_client"
+              Secret = "second_secret"
+              Enabled = 0 }
+        )
         |> ignore
-        
-        fileDb
-        |> MySQLite.insertOperator({Operator.Name = "operator_a"; AuthUrl = "auth_url"; Enabled =1})
+
+        conn
+        |> MyDatabase.insertOperator (
+            { Operator.Name = "operator_a"
+              AuthUrl = "auth_url"
+              Enabled = 1 }
+        )
         |> ignore
-        
-        fileDb
-        |> MySQLite.insertOperatorPrincipal({OperatorPrincipal.OperatorName = "operator_a"; ClientId = "client_id"; ClientSecret ="client_secret"})
-        |> ignore
-        
-        let memoryDb = new SqliteConnection(connectionString)
-        memoryDb.Open()
-        fileDb.BackupDatabase(memoryDb)
-        memoryDb
-    
-    
+
+
     interface IDisposable with
-        member this.Dispose() = conn.Dispose()
+        member this.Dispose() = ds.Dispose()
 
     [<Fact>]
     member self.``My test``() =
-        
-        let f = MySQLite.getClientById ("third_client")
+        let f = MyDatabase.getClientById "first_client"
 
         task {
-            match! f conn with
-            | Ok(None) ->
-                 Assert.True(false, "client not found")
-            |Ok(Some(client))->
-                Assert.Equal("third_secret", client.Secret)
-            | Error(err) ->
-                Assert.True(false, $"{err}")
+            match! f (ds.CreateConnection()) with
+            | Ok(None) -> Assert.True(false, "client not found")
+            | Ok(Some(client)) -> Assert.Equal("first_secret", client.Secret)
+            | Error(err) -> Assert.True(false, $"{err}")
         }

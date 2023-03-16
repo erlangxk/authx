@@ -9,8 +9,12 @@ module Program =
     [<EntryPoint>]
     let main args =
         webHost args {
+            
+            
+            
             use_if FalcoExtensions.IsDevelopment DeveloperExceptionPageExtensions.UseDeveloperExceptionPage
             use_ifnot FalcoExtensions.IsDevelopment (FalcoExtensions.UseFalcoExceptionHandler SharedHandlers.serverError)
+            add_service MyStorage.addStorage
             endpoints MyEndPoints.lists
         }
 

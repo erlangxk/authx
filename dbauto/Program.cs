@@ -1,9 +1,9 @@
 ﻿using System.Reflection;
 using EvolveDb;
-using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 
 
 namespace dbauto;
@@ -14,7 +14,7 @@ public class Program
     {
         private readonly ILogger _logger;
 
-        const string DBFile = "/Users/simonking/Microsoft/authx/authx.sqlite";
+        const string ConnectionString = "Host=localhost;Database=postgres;Username=postgres;Password=mysecretpassword";
 
 
         public EvolveHostedService(ILogger<EvolveHostedService> logger)
@@ -25,12 +25,13 @@ public class Program
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("1. StartAsync has been called.");
-            var connectionString = $"Data Source={DBFile};";
+           
 
             try
             {
-                using var cnx = new SqliteConnection(connectionString);
-                _logger.LogInformation("connectionString is {connectionString}", connectionString);
+                using var ds =NpgsqlDataSource.Create(ConnectionString);
+                using var cnx = ds.CreateConnection();
+                _logger.LogInformation("connectionString is {connectionString}", ConnectionString);
                 var evolve = new Evolve(cnx, msg => _logger.LogInformation("evolve logging: {msg}", msg))
                 {
                     EmbeddedResourceAssemblies = new[] { Assembly.GetExecutingAssembly() }
