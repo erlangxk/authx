@@ -53,10 +53,10 @@ module MyDatabase =
           ClientId = rd.ReadString "client_id"
           ClientSecret = rd.ReadString "client_secret" }
 
-    let getOperatorPrincipalByName (operatorName: string) =
+    let getPrincipalByOperator (operatorName: string) =
         Db.newCommand "select * from operator_principals where operator_name = @operatorName"
         >> Db.setParams [ "operatorName", SqlType.String operatorName ]
-        >> Db.Async.querySingle readOperator
+        >> Db.Async.querySingle readOperatorPrincipal
 
     let loadAllOperatorPrincipals conn =
         conn

@@ -1,11 +1,7 @@
 namespace authx
 
-open System.Data
 open System.Data.Common
-open Microsoft.Extensions.DependencyInjection
-open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.Logging
-open Npgsql
 open MyDatabase
 open authx.Domain
 
@@ -13,7 +9,7 @@ module MyStorage =
 
 
     let loadAllData (logger: ILogger) (ds: DbDataSource) =
-        let run dbOp =
+        let run dbOp getKey =
             task {
                 use! conn = ds.OpenConnectionAsync()
 
@@ -24,21 +20,22 @@ module MyStorage =
                     return Map.empty
             }
 
-        let clients = run loadAllClients
-        let operators = run loadAllOperators
-        let operatorPrincipals = run loadAllOperatorPrincipals
-
+        let clients = run loadAllClients (fun r -> r.Id)
+        let operators = run loadAllOperators (fun r -> r.Name)
+        let operatorPrincipals = run loadAllOperatorPrincipals (fun r -> r.OperatorName)
         (clients.Result, operators.Result, operatorPrincipals.Result)
 
 
-    type MemoryStorage(config: IConfiguration, logger: ILogger<MemoryStorage>) =
-        let store =
-            let connStr = config["DB:ConnStr"]
-            logger.LogInformation("database connection is {connStr}", connStr)
-            use ds = NpgsqlDataSource.Create(connStr)
-            loadAllData logger ds |||> createMemoryStorage
+    type MemoryStorage(dataSource: DbDataSource, logger: ILogger<MemoryStorage>) =
+        let (clients, operators, operatorPrincipals) = loadAllData logger dataSource
 
-        member this.get() = store
 
-    let addStorage (svc: IServiceCollection) =
-        svc.AddSingleton<MemoryStorage, MemoryStorage>()
+        interface IStorage with
+            member this.GetClientById(clientId: string) =
+                task { return clients |> Map.tryFind clientId }
+
+            member this.GetOperatorByName(name: string) =
+                task { return operators |> Map.tryFind name }
+
+            member this.GetPrincipalOfOperator(operator: string) =
+                task { return operatorPrincipals |> Map.tryFind operator }

@@ -2,31 +2,32 @@ namespace authx
 
 open Falco
 open Falco.Routing
-open authx.MyStorage
+open Domain
+open Microsoft.AspNetCore.Http
+open System.Threading.Tasks
 
 module MyEndPoints =
 
-    let authHandler: HttpHandler =
-        Services.inject<MemoryStorage> (fun storage ->
-            fun ctx ->
-                let q = Request.getQuery ctx
+    let processAuth (storage: IStorage) (sign: string) (authReq: Core.AuthRequest) (ctx: HttpContext) =
+        task {
+            let! client = storage.GetClientById(authReq.ClientId)
 
-                let processAuth (sign: string) (authReq: Core.AuthRequest) =
-                    //authReq.ClientId
-                    //send a jwt token back to
-                    let client = storage.get().GetClientById(authReq.ClientId)
+            match client with
+            | Some(c) when Core.checkSign (authReq) (c.Secret) (sign) ->
+                return! ctx |> Response.ofPlainText $"{c.Secret}{authReq.ClientId}#{sign}"
+            | _ -> return! ctx |> SharedHandlers.badRequest
+        }
+        :> Task
 
-                    match client with
-                    | Some(c) -> Response.ofPlainText $"{c.Secret}{authReq.ClientId}#{sign}"
-                    | None -> SharedHandlers.badRequest
+    let handleAuth (storage: IStorage) (ctx: HttpContext) =
+        let q = Request.getQuery ctx
 
+        match q.TryGet("sign") with
+        | None -> ctx |> SharedHandlers.badRequest
+        | Some(sign) -> ctx |> Request.mapJson (processAuth storage sign)
 
-                let handler =
-                    match q.TryGet("sign") with
-                    | None -> SharedHandlers.badRequest
-                    | Some(sign) -> Request.mapJson (processAuth sign)
+    let authHandler: HttpHandler = Services.inject<IStorage> handleAuth
 
-                handler ctx)
 
     let lists: list<HttpEndpoint> =
         [ get "/" (Response.ofPlainText "Hello World"); post "/auth" authHandler ]

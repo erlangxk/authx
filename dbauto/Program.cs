@@ -16,7 +16,6 @@ public class Program
 
         const string ConnectionString = "Host=localhost;Database=postgres;Username=postgres;Password=mysecretpassword";
 
-
         public EvolveHostedService(ILogger<EvolveHostedService> logger)
         {
             this._logger = logger;
@@ -24,13 +23,11 @@ public class Program
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("1. StartAsync has been called.");
-           
-
+            _logger.LogInformation("Host StartAsync has been called.");
             try
             {
                 using var ds =NpgsqlDataSource.Create(ConnectionString);
-                using var cnx = ds.CreateConnection();
+                using var cnx = ds.OpenConnection();
                 _logger.LogInformation("connectionString is {connectionString}", ConnectionString);
                 var evolve = new Evolve(cnx, msg => _logger.LogInformation("evolve logging: {msg}", msg))
                 {
@@ -48,7 +45,7 @@ public class Program
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("4. StopAsync has been called.");
+            _logger.LogInformation("Host StopAsync has been called.");
             return Task.CompletedTask;
         }
     }

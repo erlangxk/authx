@@ -10,7 +10,7 @@ open authx.Domain
 let connectionString =
     "Host=localhost;Database=postgres;Username=postgres;Password=mysecretpassword"
 
-type MySQLiteTests() as self =
+type DatabaseTests() as self =
 
     let ds = NpgsqlDataSource.Create(connectionString)
 
