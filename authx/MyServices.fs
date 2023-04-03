@@ -19,8 +19,7 @@ module MyServices =
     let addDatasource (svc: IServiceCollection) =
         svc.AddSingleton<DbDataSource>(createDataSource)
 
-    let addMemoryStorage (svc: IServiceCollection) =
-        svc.AddSingleton<IStorage, MyStorage.MemoryStorage>()
-
     let addCachedStorage (svc: IServiceCollection) =
         svc.AddSingleton<IStorage, MyCache.CachedStorage>()
+        
+    

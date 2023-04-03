@@ -1,15 +1,11 @@
 namespace authx
 
 open System
-open System.Collections.Generic
-open System.Runtime.InteropServices.JavaScript
-open System.Security.Claims
 open System.Text
-open JWT.Builder
 open JWT.Algorithms
 open JWT.Serializers
 open JWT
-open authx.Core
+open AuthRequest
 
 module MyJwtClaims =
     let jwtId = "jti"
@@ -27,31 +23,19 @@ module MyJwtClaims =
 module MyJwtToken =
 
     type Claim = string * obj
+    type UserClaims = seq<Claim>
 
-    type UserClaims =
-        abstract Claims: list<Claim>
+    let configClaims (issuer: string) (expireTime: int64) : UserClaims =
+        [ MyJwtClaims.expirationTime, expireTime; MyJwtClaims.issuer, issuer ]
 
-    type User(name: string, test: bool, currency: string) =
-        interface UserClaims with
-            member this.Claims =
-                [ MyJwtClaims.test, test
-                  MyJwtClaims.currency, currency
-                  MyJwtClaims.name, name ]
-
-    let configClaims (subject: string) (issuer: string) (expireTime: int64) : list<Claim> =
-        [ MyJwtClaims.expirationTime, expireTime
-          MyJwtClaims.subject, subject
-          MyJwtClaims.issuer, issuer ]
-
-    let authReqClaims (authReq: AuthRequest) : list<Claim> =
+    let authReqClaims (authReq: AuthRequest) : UserClaims =
         [ MyJwtClaims.token, authReq.Token
           MyJwtClaims.operator, authReq.Operator
           MyJwtClaims.audience, authReq.ClientId ]
 
     let createTokenInternal
         (jwtId: string)
-        (user: UserClaims)
-        (subject: string)
+        (userClaims: UserClaims)
         (issuer: string)
         (expireTime: int64)
         (clientSecret: string)
@@ -64,8 +48,8 @@ module MyJwtToken =
 
         let claims =
             seq {
-                yield! configClaims subject issuer expireTime
-                yield! user.Claims
+                yield! configClaims issuer expireTime
+                yield! userClaims
                 yield! authReqClaims authReq
                 yield MyJwtClaims.jwtId, jwtId
             }
@@ -76,10 +60,10 @@ module MyJwtToken =
 
     let createToken
         (user: UserClaims)
-        (subject: string, issuer: string, ttl: int)
+        (issuer: string, ttl: int)
         (clientSecret: string)
         (authReq: AuthRequest)
         : string =
         let jwtId = Guid.NewGuid().ToString()
         let expireTime = DateTimeOffset.UtcNow.AddMinutes(ttl).ToUnixTimeSeconds()
-        createTokenInternal jwtId user subject issuer expireTime clientSecret authReq
+        createTokenInternal jwtId user issuer expireTime clientSecret authReq

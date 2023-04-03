@@ -10,7 +10,7 @@ open authx.Domain
 let connectionString =
     "Host=localhost;Database=postgres;Username=postgres;Password=mysecretpassword"
 
-type DatabaseTests() as self =
+type DatabaseTests() =
 
     let ds = NpgsqlDataSource.Create(connectionString)
 
@@ -37,7 +37,9 @@ type DatabaseTests() as self =
         |> MyDatabase.insertOperator (
             { Operator.Name = "operator_a"
               AuthUrl = "auth_url"
-              Enabled = 1 }
+              Enabled = 1
+              Pipeline = 0
+              Params = None }
         )
         |> ignore
 

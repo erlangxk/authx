@@ -12,14 +12,10 @@ module Domain =
     type Operator =
         { Name: string
           AuthUrl: string
-          Enabled: int }
-
-    type OperatorPrincipal =
-        { OperatorName: string
-          ClientId: string
-          ClientSecret: string }
+          Params: option<string>
+          Enabled: int
+          Pipeline: int }
 
     type IStorage =
         abstract member GetClientById: string -> Task<option<Client>>
         abstract member GetOperatorByName: string -> Task<option<Operator>>
-        abstract member GetPrincipalOfOperator: string -> Task<option<OperatorPrincipal>>

@@ -3,28 +3,35 @@ module JwtTests
 open Xunit
 
 open authx
-open authx.Core
-open authx.Domain
+open authx.AuthRequest
+
+open MyJwtToken
+
+type User(name: string, test: bool, currency: string) =
+
+    member this.Claims: MyJwtToken.UserClaims =
+        [ MyJwtClaims.test, test
+          MyJwtClaims.currency, currency
+          MyJwtClaims.name, name ]
 
 [<Fact>]
 
 let testCreateToken () =
 
-    let user = MyJwtToken.User("simon", true, "RMB")
-    let subject ="subject"
-    let issuer ="issuer"
-    let expireTime:int64 = 3
+    let user = User("simon", true, "RMB")
+    let issuer = "issuer"
+    let expireTime: int64 = 3
     let secret = "secret"
 
     let authReq =
         { AuthRequest.ClientId = "clientId"
           Operator = "operator"
           Token = "token" }
-        
-        
-    let r = MyJwtToken.createToken user (subject,issuer,30) secret authReq
-    printfn $"{r}"
 
-    let result = MyJwtToken.createTokenInternal "jwtId" user subject issuer expireTime secret authReq
-    let expected = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjMsInN1YiI6InN1YmplY3QiLCJpc3MiOiJpc3N1ZXIiLCJ0ZXN0Ijp0cnVlLCJjdXJyZW5jeSI6IlJNQiIsIm5hbWUiOiJzaW1vbiIsInRva2VuIjoidG9rZW4iLCJvcGVyYXRvciI6Im9wZXJhdG9yIiwiYXVkIjoiY2xpZW50SWQiLCJqdGkiOiJqd3RJZCJ9.zuDdG3oKGieUHCy7uYvaixut2IMfWMLu8J6nfn6lienFNvxdLbv_E76q78_QFssFS64KPqRl4UfoUhX1g_VQWQ"
-    Assert.Equal(expected, result)
+    let result =
+        createTokenInternal "jwtId" user.Claims issuer expireTime secret authReq
+
+    let exp =
+        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjMsImlzcyI6Imlzc3VlciIsInRlc3QiOnRydWUsImN1cnJlbmN5IjoiUk1CIiwibmFtZSI6InNpbW9uIiwidG9rZW4iOiJ0b2tlbiIsIm9wZXJhdG9yIjoib3BlcmF0b3IiLCJhdWQiOiJjbGllbnRJZCIsImp0aSI6Imp3dElkIn0.OGyx4vBvwJqCVnDklG_GavObX2g0lwIHhyYnPrLu3pTlRfF4JA11Q9uxiimp1qZwueRjLwkbIs7uLou0R31Zrg"
+
+    Assert.Equal(exp, result)

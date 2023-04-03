@@ -33,6 +33,3 @@ module MyCache =
             member this.GetOperatorByName(name: string) =
                 MyDatabase.getOperatorByName name |> lookUpFromCache $"GetOperatorByName#{name}"
 
-            member this.GetPrincipalOfOperator(operator: string) =
-                MyDatabase.getPrincipalByOperator operator
-                |> lookUpFromCache $"GetPrincipalOfOperator#{operator}"
