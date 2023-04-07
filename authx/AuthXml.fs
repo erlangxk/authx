@@ -1,18 +1,19 @@
 namespace authx
 
+open System
 open System.IO
 open System.Xml
-open Oryx
 open MyJwtToken
 open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Logging
 open Microsoft.Extensions.DependencyInjection
-open FsConfig
+open Microsoft.Extensions.Options
+
+open W88Operator
 open System.Net.Http
 
 module AuthXml =
-    exception MyConfigError of string
 
     let readStr (xml: Stream) =
         use reader = XmlReader.Create(xml)
@@ -34,96 +35,47 @@ module AuthXml =
         | UnknownError of exn
 
     let parseDict (dict: Map<string, string>) : Op1AuthResult =
-        let statusCode = dict.["statusCode"]
+        try
+            let statusCode = dict.["statusCode"]
 
-        if statusCode = "00" then
-            let currency = dict.["currency"]
-            let memberId = dict.["memberId"]
-            let memberCode = dict.["memberCode"]
-            let testAccountStr = dict.["testAccount"]
-            let test = testAccountStr = "1"
+            if statusCode = "00" then
+                let currency = dict.["currency"]
+                let memberId = dict.["memberId"]
+                let memberCode = dict.["memberCode"]
+                let testAccountStr = dict.["testAccount"]
+                let test = testAccountStr = "1"
 
-            let userClaims: UserClaims =
-                [ MyJwtClaims.test, test
-                  MyJwtClaims.currency, currency
-                  MyJwtClaims.subject, memberId
-                  MyJwtClaims.name, memberCode ]
+                let userClaims: UserClaims =
+                    [ MyJwtClaims.test, test
+                      MyJwtClaims.currency, currency
+                      MyJwtClaims.subject, memberId
+                      MyJwtClaims.name, memberCode ]
 
-            Success userClaims
-        else
-            Failed statusCode
+                Success userClaims
+            else
+                Failed statusCode
+        with ex ->
+            UnknownError ex
 
     let parseOp1 xml = xml |> readStr |> parseDict
 
 
-
-    type W88AuthTokenConfig =
-        { Url: string
-          OperatorId: string
-          Wallet: string
-          SecretKey: string }
-
-        member this.QueryParams(token:string) =
-            seq {
-                struct ("OperatorId", this.OperatorId)
-                struct ("Wallet", this.Wallet)
-                struct ("secretkey", this.SecretKey)
-                struct ("token", token)
-            }
-
-    let authOp1 url query client =
-        let pipeline =
-            httpRequest
-            |> POST
-            |> withHttpClient client
-            |> withUrl url
-            |> withQuery query
-            |> fetch
-            |> Oryx.HttpHandler.parse parseOp1
-
+    let authOp12 (uri: Uri) (httpClientFactory: IHttpClientFactory) =
         task {
-            match! runAsync pipeline with
-            | Ok r -> return r
-            | Error exn -> return UnknownError exn
+            try
+                use httpClient = httpClientFactory.CreateClient()
+                httpClient.Timeout <- TimeSpan(0, 0, 30)
+                let! res = httpClient.PostAsync(uri, null)
+                let success = res.EnsureSuccessStatusCode()
+                let! stream = success.Content.ReadAsStreamAsync()
+                return parseOp1 stream
+            with ex ->
+                return UnknownError ex
         }
 
+    type OperatorW88Service(option: IOptions<W88Operator>, httpClientFactory: IHttpClientFactory) =
+        let w88 = option.Value
 
-
-    type W88AuthConfig(env: IHostEnvironment, logger: ILogger<W88AuthConfig>) =
-        let fileName = if env.IsDevelopment() then "w88UAT.json" else "w88.json"
-
-        let cb =
-            ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile(fileName)
-                .Build()
-
-        let appConfig =
-            match AppConfig(cb).Get<W88AuthTokenConfig>() with
-            | Ok config -> config
-            | Error err ->
-                let info = err.ToString()
-                logger.LogError("failed loading {fileName}, error is {error}", fileName, info)
-                raise (MyConfigError info)
-
-        member this.AppConfig = appConfig
-
-
-    //TODO make this service to accept the options to specify the file name
-    // example: like JWT authentication
-
-
-    type W88AuthService(config: W88AuthConfig, httpClient: HttpClient) =
-        let cfg = config.AppConfig
-
-        member this.getUserInfo(token:string) =
-            authOp1 cfg.Url (cfg.QueryParams token) httpClient
-
-    let addW88AuthConfig (svc: IServiceCollection) =
-        
-     
-        svc
-            .AddSingleton<W88AuthConfig, W88AuthConfig>()
-            .AddSingleton<W88AuthService, W88AuthService>()
-            
-    
+        member this.getUserInfo(token: string) =
+            let url = MyOperator.buildUri w88 token
+            authOp12 url httpClientFactory

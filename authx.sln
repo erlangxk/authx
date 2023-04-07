@@ -2,8 +2,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "authx", "authx\authx.fsproj", "{83A28EDB-0A80-41C0-9479-222726C52280}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dbauto", "dbauto\dbauto.csproj", "{3BDB01E1-F73A-46B3-9455-39BD7E22D96D}"
-EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "authx.tests", "authx.tests\authx.tests.fsproj", "{37D2620B-962C-465D-87B0-06F23CF3E177}"
 EndProject
 Global
@@ -16,10 +14,6 @@ Global
 		{83A28EDB-0A80-41C0-9479-222726C52280}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{83A28EDB-0A80-41C0-9479-222726C52280}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{83A28EDB-0A80-41C0-9479-222726C52280}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3BDB01E1-F73A-46B3-9455-39BD7E22D96D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3BDB01E1-F73A-46B3-9455-39BD7E22D96D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3BDB01E1-F73A-46B3-9455-39BD7E22D96D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3BDB01E1-F73A-46B3-9455-39BD7E22D96D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{37D2620B-962C-465D-87B0-06F23CF3E177}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{37D2620B-962C-465D-87B0-06F23CF3E177}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37D2620B-962C-465D-87B0-06F23CF3E177}.Release|Any CPU.ActiveCfg = Release|Any CPU

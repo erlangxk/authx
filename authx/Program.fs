@@ -4,6 +4,8 @@ open Falco
 open Falco.HostBuilder
 open Microsoft.AspNetCore.Builder
 
+open Microsoft.AspNetCore.Hosting
+open Microsoft.Extensions.DependencyInjection
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Configuration
 
@@ -17,18 +19,32 @@ module Program =
             else
                 "w88.json"
 
+        configBuilder.AddJsonFile("clients.json") |> ignore
         configBuilder.AddJsonFile(file) |> ignore
 
 
+    let addServices (context: HostBuilderContext) (svc: IServiceCollection) =
+        let w88 = context.Configuration.GetSection(W88Operator.W88Operator.Name)
+        svc.Configure<W88Operator.W88Operator>(w88) |> ignore
+
+        let clients = context.Configuration.GetSection(nameof MyClients.Clients)
+        svc.Configure<MyClients.Clients>(clients) |> ignore
+
+        svc.AddSingleton<AuthXml.OperatorW88Service, AuthXml.OperatorW88Service>()
+        |> ignore
+
+
+
     let configureHost (host: IHostBuilder) =
-        host.ConfigureAppConfiguration addConfigFiles
-
-
+        host.ConfigureAppConfiguration addConfigFiles |> ignore
+        host.ConfigureServices addServices |> ignore
+        host
 
 
     [<EntryPoint>]
     let main args =
         webHost args {
+
             host configureHost
 
             use_if FalcoExtensions.IsDevelopment DeveloperExceptionPageExtensions.UseDeveloperExceptionPage
@@ -38,11 +54,6 @@ module Program =
                 (FalcoExtensions.UseFalcoExceptionHandler SharedHandlers.serverError)
 
             add_http_client
-            add_service MyServices.addDatasource
-            add_service MyServices.addCachedStorage
-            add_service MyServices.addCache
-            add_service AuthXml.addW88AuthConfig
-
             endpoints MyEndPoints.lists
 
         }

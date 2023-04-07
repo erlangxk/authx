@@ -1,6 +1,8 @@
 {
-  "Url": "https://integration.aqzbouatv2.com/authenticate.api",
-  "OperatorId": "1",
-  "Wallet": "Casino",
-  "SecretKey": "xxx"
+  "w88": {
+    "Url": "https://integration.aqzbouatv2.com/authenticate.api",
+    "OperatorId": "1",
+    "Wallet": "Casino",
+    "SecretKey": "xxx"
+  }
 }

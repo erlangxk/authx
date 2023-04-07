@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
 
         <IsPackable>false</IsPackable>
         <GenerateProgramFile>false</GenerateProgramFile>
@@ -9,7 +9,6 @@
 
     <ItemGroup>
         <Compile Include="WebApiTests.fs" />
-        <Compile Include="DbTests.fs" />
         <Compile Include="JwtTests.fs" />
         <Compile Include="AuthXmlTests.fs" />
         <Compile Include="Program.fs" />

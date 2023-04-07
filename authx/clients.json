@@ -1,0 +1,14 @@
+{
+  "Clients": {
+    "All": [
+      {
+        "Id": "client1",
+        "Secret": "client1Secret"
+      },
+      {
+        "Id": "client2",
+        "Secret": "client2Secret"
+      }
+    ]
+  }
+}
