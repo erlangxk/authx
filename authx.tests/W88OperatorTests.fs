@@ -4,9 +4,11 @@ open System.IO
 open Xunit
 open authx
 open System.Text
+open authx.MyOperator
 
-let toStream (s: string) =
-    new MemoryStream(Encoding.UTF8.GetBytes(s))
+let readAndParse (s: string) =
+    let stream = new MemoryStream(Encoding.UTF8.GetBytes(s))
+    stream |> W88Operator.readXml |> W88Operator.parseDict
 
 let xml1 =
     """
@@ -32,14 +34,14 @@ let xml1 =
 [<Fact>]
 
 let ``test read xml ok`` () =
-    let result = toStream xml1 |> AuthXml.parseOp1
+    let result = readAndParse xml1
 
     let claims =
         match result with
-        | AuthXml.Success m -> Map.ofSeq m
+        | AuthResult.Success m -> Map.ofSeq m
         | _ -> Map.empty
 
-    Assert.Equal("RMB", claims.[MyJwtClaims.currency].ToString())
+    Assert.Equal("RMB", claims[ MyJwtClaims.currency ].ToString())
 
 
 let xml2 =
@@ -64,5 +66,5 @@ let xml2 =
 
 [<Fact>]
 let ``test read xml error`` () =
-    let result = xml2 |> toStream |> AuthXml.parseOp1
-    Assert.Equal(AuthXml.Failed "MissingToken", result)
+    let result = readAndParse xml2
+    Assert.Equal(AuthResult.Failed "MissingToken", result)

@@ -1,15 +1,19 @@
 namespace authx
 
+open Autofac.Extensions.DependencyInjection
 open Falco
 open Falco.HostBuilder
 open Microsoft.AspNetCore.Builder
 
-open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Configuration
+open Autofac
 
 module Program =
+
+    let configAllOperators (context: HostBuilderContext, svc: IServiceCollection) =
+        W88Operator.configW88Operator (context.Configuration, svc)
 
     let addConfigFiles (context: HostBuilderContext) (configBuilder: IConfigurationBuilder) =
 
@@ -24,20 +28,20 @@ module Program =
 
 
     let addServices (context: HostBuilderContext) (svc: IServiceCollection) =
-        let w88 = context.Configuration.GetSection(W88Operator.W88Operator.Name)
-        svc.Configure<W88Operator.W88Operator>(w88) |> ignore
+        configAllOperators (context, svc)
+        MyClients.configClients (context.Configuration, svc)
+        svc.AddSingleton<W88Operator.W88AuthApi>() |> ignore
 
-        let clients = context.Configuration.GetSection(nameof MyClients.Clients)
-        svc.Configure<MyClients.Clients>(clients) |> ignore
-
-        svc.AddSingleton<AuthXml.OperatorW88Service, AuthXml.OperatorW88Service>()
+    let addAutofacConfig (context: HostBuilderContext) (builder: ContainerBuilder) =
+        builder.RegisterType<W88Operator.W88AuthApi>()
+            .Named<MyOperator.AuthApi>(W88Operator.W88Operator.Name)
         |> ignore
 
-
-
     let configureHost (host: IHostBuilder) =
+        host.UseServiceProviderFactory(AutofacServiceProviderFactory()) |> ignore
         host.ConfigureAppConfiguration addConfigFiles |> ignore
         host.ConfigureServices addServices |> ignore
+        host.ConfigureContainer<ContainerBuilder> addAutofacConfig |> ignore
         host
 
 
@@ -57,7 +61,5 @@ module Program =
             endpoints MyEndPoints.lists
 
         }
-
-
 
         0

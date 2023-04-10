@@ -1,21 +1,20 @@
 namespace authx
 
+open Autofac
 open Falco
 open Falco.Routing
 open Microsoft.AspNetCore.Http
 open System.Threading.Tasks
 open AuthRequest
 open Microsoft.Extensions.Options
-open authx.AuthXml
 open authx.MyJwtToken
+open authx.MyOperator
+open authx.W88Operator
 
 module MyEndPoints =
 
     let processAuth (sign: string) (authReq: AuthRequest) (ctx: HttpContext) =
-        task {
-            return! ctx |> SharedHandlers.badRequest
-        }
-        :> Task
+        task { return! ctx |> SharedHandlers.badRequest } :> Task
 
     let handleAuth (ctx: HttpContext) =
         let q = Request.getQuery ctx
@@ -39,12 +38,15 @@ module MyEndPoints =
         )
 
     let userInfoHandler: HttpHandler =
-
-        Services.inject<OperatorW88Service> (fun service ->
+        Services.inject<IComponentContext> (fun container ->
             fun ctx ->
                 task {
-                    let! result = service.getUserInfo "token"
-                    return! ctx |> Response.ofPlainText (result.ToString())
+                    match container.TryResolveNamed<AuthApi>(W88Operator.W88Operator.Name) with
+                    | true, service ->
+                        let! result = service.getUserInfo "token"
+                        return! ctx |> Response.ofPlainText (result.ToString())
+                    | _ -> return! ctx |> SharedHandlers.badRequest
+
                 })
 
     let lists: list<HttpEndpoint> =

@@ -6,18 +6,19 @@
 
     <ItemGroup>
         <Compile Include="AuthRequest.fs" />
+        <Compile Include="MyJwtToken.fs" />
         <Compile Include="MyOperator.fs" />
         <Compile Include="MyClients.fs" />
         <Compile Include="W88Operator.fs" />
         <Compile Include="SharedHandlers.fs" />
-        <Compile Include="MyJwtToken.fs" />
-        <Compile Include="AuthXml.fs" />
         <Compile Include="MyEndPoints.fs" />
         <Compile Include="Program.fs" />
         <Folder Include="w88" />
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Autofac" Version="7.0.0" />
+        <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
         <PackageReference Include="Falco" Version="4.0.4" />
         <PackageReference Include="JWT" Version="10.0.2" />
     </ItemGroup>

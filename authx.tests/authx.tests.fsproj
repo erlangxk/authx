@@ -10,7 +10,7 @@
     <ItemGroup>
         <Compile Include="WebApiTests.fs" />
         <Compile Include="JwtTests.fs" />
-        <Compile Include="AuthXmlTests.fs" />
+        <Compile Include="W88OperatorTests.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>
 
