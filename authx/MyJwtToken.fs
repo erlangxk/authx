@@ -2,10 +2,8 @@ namespace authx
 
 open System
 open System.Text
-open JWT.Algorithms
-open JWT.Serializers
-open JWT
 open AuthRequest
+open Jose
 
 module MyJwtClaims =
     let jwtId = "jti"
@@ -41,11 +39,7 @@ module MyJwtToken =
         (clientSecret: string)
         (authReq: AuthRequest)
         : string =
-        let serializer = SystemTextSerializer()
-        let urlEncoder = JwtBase64UrlEncoder()
-        let algorithm = HMACSHA512Algorithm()
-        let encoder = JwtEncoder(algorithm, serializer, urlEncoder)
-
+       
         let claims =
             seq {
                 yield! configClaims issuer expireTime
@@ -56,7 +50,9 @@ module MyJwtToken =
             |> dict
 
         let secretKey = Encoding.UTF8.GetBytes(clientSecret)
-        encoder.Encode(claims, secretKey)
+        JWT.Encode(claims, secretKey, JwsAlgorithm.HS512)
+
+       
 
     let createToken
         (user: UserClaims)

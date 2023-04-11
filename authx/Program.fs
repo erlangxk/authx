@@ -30,7 +30,6 @@ module Program =
     let addServices (context: HostBuilderContext) (svc: IServiceCollection) =
         configAllOperators (context, svc)
         MyClients.configClients (context.Configuration, svc)
-        svc.AddSingleton<W88Operator.W88AuthApi>() |> ignore
 
     let addAutofacConfig (context: HostBuilderContext) (builder: ContainerBuilder) =
         builder.RegisterType<W88Operator.W88AuthApi>()
@@ -50,6 +49,8 @@ module Program =
         webHost args {
 
             host configureHost
+            
+            
 
             use_if FalcoExtensions.IsDevelopment DeveloperExceptionPageExtensions.UseDeveloperExceptionPage
 
