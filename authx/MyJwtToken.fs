@@ -52,8 +52,6 @@ module MyJwtToken =
         let secretKey = Encoding.UTF8.GetBytes(clientSecret)
         JWT.Encode(claims, secretKey, JwsAlgorithm.HS512)
 
-       
-
     let createToken
         (user: UserClaims)
         (issuer: string, ttl: int)

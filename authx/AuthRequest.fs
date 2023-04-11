@@ -9,15 +9,13 @@ type AuthRequest =
       Operator: string
       Token: string }
 
-let inline sha256Hash (bytes: byte[]) =
-    use sha256 = SHA256.Create()
-    sha256.ComputeHash bytes
+    member this.CheckSum secret =
+        $"{this.ClientId}{secret}{this.Operator}{this.Token}"
 
-let checkSum (req: AuthRequest) secret =
-    $"{req.ClientId}{secret}{req.Operator}{req.Token}"
+let hash (req: AuthRequest) (secret: string) =
+    req.CheckSum(secret)
     |> Encoding.UTF8.GetBytes
-    |> sha256Hash
+    |> SHA512.HashData
     |> Convert.ToBase64String
 
-let checkSign (req: AuthRequest) (secret: string) (sign: string) : bool =
-    sign = checkSum req secret
+let checkSign (req: AuthRequest) (secret: string) (sign: string) : bool = hash req secret = sign
