@@ -14,7 +14,7 @@ type Clients = { All: seq<Client> }
 
 type MyClients(clients: IOptions<Clients>) =
     let all = Map [ for c in clients.Value.All -> c.Id, c.Secret ]
-    member this.clientSecret(clientId: string) : option<string> = all |> Map.tryFind clientId
+    member this.FindClientSecret(clientId: string) : option<string> = all |> Map.tryFind clientId
 
 
 let configClients (config: IConfiguration, svc: IServiceCollection) =

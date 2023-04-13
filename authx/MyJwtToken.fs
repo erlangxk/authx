@@ -4,6 +4,9 @@ open System
 open System.Text
 open AuthRequest
 open Jose
+open Microsoft.Extensions.Options
+open Microsoft.Extensions.Configuration
+open Microsoft.Extensions.DependencyInjection
 
 module MyJwtClaims =
     let jwtId = "jti"
@@ -39,7 +42,7 @@ module MyJwtToken =
         (clientSecret: string)
         (authReq: AuthRequest)
         : string =
-       
+
         let claims =
             seq {
                 yield! configClaims issuer expireTime
@@ -61,3 +64,14 @@ module MyJwtToken =
         let jwtId = Guid.NewGuid().ToString()
         let expireTime = DateTimeOffset.UtcNow.AddMinutes(ttl).ToUnixTimeSeconds()
         createTokenInternal jwtId user issuer expireTime clientSecret authReq
+
+    [<CLIMutable>]
+    type JwtConfig = { Issuer: string; Ttl: int }
+
+    type MyJwtToken(config: IOptions<JwtConfig>) =
+        let cfg = config.Value
+        member this.Config = (cfg.Issuer, cfg.Ttl)
+
+    let configJwtToken (config: IConfiguration, svc: IServiceCollection) =
+        let jwt = config.GetSection("JWT")
+        svc.Configure<JwtConfig>(jwt).AddSingleton<MyJwtToken>() |> ignore

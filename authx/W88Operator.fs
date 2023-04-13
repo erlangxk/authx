@@ -1,5 +1,6 @@
 module authx.W88Operator
 
+open Autofac
 open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
 open System
@@ -28,11 +29,6 @@ type W88Operator =
               "Wallet", this.Wallet
               "secretkey", this.SecretKey
               "token", token ]
-
-let configW88Operator (config: IConfiguration, svc: IServiceCollection) =
-    let w88 = config.GetSection(W88Operator.Name)
-    svc.Configure<W88Operator>(w88) |> ignore
-
 
 let readXml (xml: Stream) =
     use reader = XmlReader.Create(xml)
@@ -84,9 +80,15 @@ let authImpl (uri: Uri) (httpClientFactory: IHttpClientFactory) =
     }
 
 type W88AuthApi(option: IOptions<W88Operator>, httpClientFactory: IHttpClientFactory) =
-    let w88 = option.Value
-
     interface AuthApi with
-        member this.getUserInfo(token: string) =
-            let url = buildUri w88 token
+        member this.GetUserInfo(token: string) =
+            let url = buildUri option.Value token
             authImpl url httpClientFactory
+
+let configW88Operator (config: IConfiguration, svc: IServiceCollection) =
+    let w88 = config.GetSection(W88Operator.Name)
+    svc.Configure<W88Operator>(w88) |> ignore
+
+let registerW88Auth (builder: ContainerBuilder) =
+    builder.RegisterType<W88AuthApi>().Named<MyOperator.AuthApi>(W88Operator.Name)
+    |> ignore

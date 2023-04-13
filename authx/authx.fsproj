@@ -11,9 +11,10 @@
         <Compile Include="MyClients.fs" />
         <Compile Include="W88Operator.fs" />
         <Compile Include="SharedHandlers.fs" />
+        <Compile Include="AuthToken.fs" />
         <Compile Include="MyEndPoints.fs" />
         <Compile Include="Program.fs" />
-        <Folder Include="w88" />
+       
     </ItemGroup>
 
     <ItemGroup>

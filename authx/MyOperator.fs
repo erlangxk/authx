@@ -26,4 +26,4 @@ type AuthResult =
     | UnknownError of exn
 
 type AuthApi =
-    abstract member getUserInfo: string -> Task<AuthResult>
+    abstract member GetUserInfo: string -> Task<AuthResult>

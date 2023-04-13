@@ -15,26 +15,18 @@ module Program =
     let configAllOperators (context: HostBuilderContext, svc: IServiceCollection) =
         W88Operator.configW88Operator (context.Configuration, svc)
 
-    let addConfigFiles (context: HostBuilderContext) (configBuilder: IConfigurationBuilder) =
-
-        let file =
-            if context.HostingEnvironment.IsDevelopment() then
-                "w88UAT.json"
-            else
-                "w88.json"
-
-        configBuilder.AddJsonFile("clients.json") |> ignore
-        configBuilder.AddJsonFile(file) |> ignore
-
+    let addConfigFiles (configBuilder: IConfigurationBuilder) =
+        configBuilder.AddJsonFile("clients.json", true) |> ignore
+        configBuilder.AddJsonFile("w88.json", true) |> ignore
 
     let addServices (context: HostBuilderContext) (svc: IServiceCollection) =
-        configAllOperators (context, svc)
         MyClients.configClients (context.Configuration, svc)
+        MyJwtToken.configJwtToken (context.Configuration, svc)
+        configAllOperators (context, svc)
+        svc.AddSingleton<AuthToken.AuthToken>() |> ignore
 
-    let addAutofacConfig (context: HostBuilderContext) (builder: ContainerBuilder) =
-        builder.RegisterType<W88Operator.W88AuthApi>()
-            .Named<MyOperator.AuthApi>(W88Operator.W88Operator.Name)
-        |> ignore
+
+    let addAutofacConfig (builder: ContainerBuilder) = W88Operator.registerW88Auth (builder)
 
     let configureHost (host: IHostBuilder) =
         host.UseServiceProviderFactory(AutofacServiceProviderFactory()) |> ignore
@@ -49,8 +41,6 @@ module Program =
         webHost args {
 
             host configureHost
-            
-            
 
             use_if FalcoExtensions.IsDevelopment DeveloperExceptionPageExtensions.UseDeveloperExceptionPage
 

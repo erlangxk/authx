@@ -26,7 +26,8 @@ let testCreateToken () =
     let authReq =
         { AuthRequest.ClientId = "clientId"
           Operator = "operator"
-          Token = "token" }
+          Token = "token"
+          Sign = "xxx" }
 
     let result =
         createTokenInternal "jwtId" user.Claims issuer expireTime secret authReq
