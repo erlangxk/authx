@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
     </PropertyGroup>
-
+    
     <ItemGroup>
         <Compile Include="AuthRequest.fs" />
         <Compile Include="MyJwtToken.fs" />
@@ -14,7 +14,6 @@
         <Compile Include="AuthToken.fs" />
         <Compile Include="MyEndPoints.fs" />
         <Compile Include="Program.fs" />
-       
     </ItemGroup>
 
     <ItemGroup>
@@ -24,4 +23,15 @@
         <PackageReference Include="jose-jwt" Version="4.1.0" />
     </ItemGroup>
 
+
+    <PropertyGroup>
+        <ContainerImageName>authx</ContainerImageName>
+        <ContainerImageTag>0.9.1</ContainerImageTag>
+        <ContainerRuntimeIdentifier>linux-arm64</ContainerRuntimeIdentifier>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Build.Containers" Version="0.4.0" />
+        <ContainerPort Include="5124" Type="tcp" />
+    </ItemGroup>
 </Project>
