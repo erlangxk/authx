@@ -2,6 +2,9 @@
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
+        <PublishTrimmed>true</PublishTrimmed>
+        <SelfContained>true</SelfContained>
+        <PublishSingleFile>true</PublishSingleFile>
     </PropertyGroup>
     
     <ItemGroup>
@@ -25,7 +28,7 @@
     
     <PropertyGroup>
         <ContainerImageName>authx</ContainerImageName>
-        <ContainerImageTags>0.9.2</ContainerImageTags>
+        <ContainerImageTags>0.9.3</ContainerImageTags>
         <RuntimeIdentifier>linux-musl-arm64</RuntimeIdentifier>
         <PublishProfile>DefaultContainer</PublishProfile>
         <ContainerBaseImage>mcr.microsoft.com/dotnet/runtime-deps:7.0-alpine-arm64v8</ContainerBaseImage>
