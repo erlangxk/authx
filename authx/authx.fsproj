@@ -22,16 +22,18 @@
         <PackageReference Include="Falco" Version="4.0.4" />
         <PackageReference Include="jose-jwt" Version="4.1.0" />
     </ItemGroup>
-
-
+    
     <PropertyGroup>
         <ContainerImageName>authx</ContainerImageName>
-        <ContainerImageTag>0.9.1</ContainerImageTag>
-        <ContainerRuntimeIdentifier>linux-arm64</ContainerRuntimeIdentifier>
+        <ContainerImageTags>0.9.2</ContainerImageTags>
+        <RuntimeIdentifier>linux-musl-arm64</RuntimeIdentifier>
+        <PublishProfile>DefaultContainer</PublishProfile>
+        <ContainerBaseImage>mcr.microsoft.com/dotnet/runtime-deps:7.0-alpine-arm64v8</ContainerBaseImage>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Build.Containers" Version="0.4.0" />
         <ContainerPort Include="5124" Type="tcp" />
+        <ContainerEnvironmentVariable Include="ASPNETCORE_URLS" Value="http://+:5124" />
     </ItemGroup>
 </Project>
