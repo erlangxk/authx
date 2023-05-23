@@ -29,7 +29,7 @@ module Program =
         configAllOperators (context, svc)
         svc.AddSingleton<AuthToken.AuthToken>() |> ignore
 
-    let addAutofacConfig (builder: ContainerBuilder) = W88Operator.registerW88Auth (builder)
+    let addAutofacConfig (builder: ContainerBuilder) = W88Operator.registerW88Auth builder
 
     let configureHost (args: string[]) (host: IHostBuilder) =
         host.UseServiceProviderFactory(AutofacServiceProviderFactory()) |> ignore

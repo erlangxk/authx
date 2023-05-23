@@ -8,3 +8,5 @@ obj/
 *.DotSettings.user
 coveragereport/
 TestResults/
+
+.fake

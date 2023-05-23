@@ -45,13 +45,13 @@ let readXml (xml: Stream) =
 
 let parseDict (dict: Map<string, string>) : AuthResult =
     try
-        let statusCode = dict.["statusCode"]
+        let statusCode = dict["statusCode"]
 
         if statusCode = "00" then
-            let currency = dict.["currency"]
-            let memberId = dict.["memberId"]
-            let memberCode = dict.["memberCode"]
-            let testAccountStr = dict.["testAccount"]
+            let currency = dict["currency"]
+            let memberId = dict["memberId"]
+            let memberCode = dict["memberCode"]
+            let testAccountStr = dict["testAccount"]
             let test = testAccountStr = "1"
 
             let userClaims: UserClaims =
@@ -90,5 +90,5 @@ let configW88Operator (config: IConfiguration, svc: IServiceCollection) =
     svc.Configure<W88Operator>(w88) |> ignore
 
 let registerW88Auth (builder: ContainerBuilder) =
-    builder.RegisterType<W88AuthApi>().Named<MyOperator.AuthApi>(W88Operator.Name)
+    builder.RegisterType<W88AuthApi>().Named<AuthApi>(W88Operator.Name)
     |> ignore

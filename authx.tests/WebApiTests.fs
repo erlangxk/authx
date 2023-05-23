@@ -4,11 +4,10 @@ open System.Net
 open FsHttp
 open Xunit
 open authx.AuthRequest
-open authx.MyOperator
 
 [<Fact>]
 let testHelloWorld () =
-    let res = http { GET "http://localhost:5124" } |> Request.send |> Response.toText
+    let res = http { GET "http://localhost:8888" } |> Request.send |> Response.toText
     Assert.Equal("Hello World", res)
 
 
@@ -19,7 +18,7 @@ let testAuthClientNotFound () =
         let operator = "operator"
         let token = "token"
         http {
-            POST "http://localhost:5124/auth"
+            POST "http://localhost:8888/auth"
             body
             json
                 $"""{{
@@ -43,7 +42,7 @@ let testAuthInvalidSign () =
         let operator = "w88"
         let token = "token"
         http {
-            POST "http://localhost:5124/auth"
+            POST "http://localhost:8888/auth"
             body
             json
                 $"""{{
@@ -68,7 +67,7 @@ let testAuthOperatorNotFound () =
         let token = "token"
         let sign = checkSum clientId operator token "client1Secret"
         http {
-            POST "http://localhost:5124/auth"
+            POST "http://localhost:8888/auth"
             body
             json
                 $"""{{
@@ -94,7 +93,7 @@ let testAuth () =
         let sign = checkSum clientId operator token "client1Secret"
 
         http {
-            POST "http://localhost:5124/auth"
+            POST "http://localhost:8888/auth"
             body
             json
                 $"""{{

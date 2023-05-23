@@ -9,28 +9,19 @@ open AuthRequest
 open Microsoft.Extensions.Options
 open Microsoft.FSharp.Control
 open authx.AuthToken
-open authx.MyClients
 open authx.MyOperator
 
 module MyEndPoints =
     //TODO configure issuer and ttl for jwt token
-    let processAuth (auth: AuthToken.AuthToken)(authReq: AuthRequest) (ctx: HttpContext) : Task =
+    let processAuth (auth: AuthToken.AuthToken) (authReq: AuthRequest) (ctx: HttpContext) : Task =
         task {
             match! auth.GetUserInfo(authReq) with
             | AuthTokenResult.Success(token) -> return! ctx |> Response.ofPlainText token
-            | AuthTokenResult.Failed(ex) -> return! ctx |> SharedHandlers.badRequest (ex.Message)
+            | AuthTokenResult.Failed(ex) -> return! ctx |> SharedHandlers.badRequest ex.Message
         }
 
-    let handleAuth (ctx: HttpContext) =
-        let q = Request.getQuery ctx
-
-        let handler =
-           
-                Services.inject<AuthToken.AuthToken> (fun auth ctx -> ctx |> Request.mapJson (processAuth auth))
-
-        handler ctx
-
-    let authHandler: HttpHandler = handleAuth
+    let authHandler: HttpHandler =
+        Services.inject<AuthToken.AuthToken> (fun auth ctx -> ctx |> Request.mapJson (processAuth auth))
 
     let configHandler: HttpHandler =
         Services.inject<IOptions<W88Operator.W88Operator>> (fun op ->
@@ -48,7 +39,7 @@ module MyEndPoints =
                     | true, service ->
                         let! result = service.GetUserInfo "token"
                         return! ctx |> Response.ofPlainText (result.ToString())
-                    | (false, _) ->
+                    | false, _ ->
                         return! ctx |> SharedHandlers.badRequest $"{W88Operator.W88Operator.Name} not found"
 
                 })
