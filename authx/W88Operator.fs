@@ -60,13 +60,13 @@ let parseDict (dict: Map<string, string>) : AuthResult =
                   MyJwtClaims.subject, memberId
                   MyJwtClaims.name, memberCode ]
 
-            Success userClaims
+            AuthResult.Success userClaims
         else
-            Failed statusCode
+            AuthResult.Failed statusCode
     with ex ->
-        UnknownError ex
+        AuthResult.UnknownError ex
 
-let authImpl (uri: Uri) (httpClientFactory: IHttpClientFactory) =
+let inline private authImpl (httpClientFactory: IHttpClientFactory) (uri: Uri) =
     task {
         try
             use httpClient = httpClientFactory.CreateClient()
@@ -76,19 +76,17 @@ let authImpl (uri: Uri) (httpClientFactory: IHttpClientFactory) =
             let! stream = success.Content.ReadAsStreamAsync()
             return stream |> (readXml >> parseDict)
         with ex ->
-            return UnknownError ex
+            return AuthResult.UnknownError ex
     }
 
 type W88AuthApi(option: IOptions<W88Operator>, httpClientFactory: IHttpClientFactory) =
     interface AuthApi with
         member this.GetUserInfo(token: string) =
-            let url = buildUri option.Value token
-            authImpl url httpClientFactory
+            buildUri option.Value token |> authImpl httpClientFactory
 
 let configW88Operator (config: IConfiguration, svc: IServiceCollection) =
     let w88 = config.GetSection(W88Operator.Name)
     svc.Configure<W88Operator>(w88) |> ignore
 
 let registerW88Auth (builder: ContainerBuilder) =
-    builder.RegisterType<W88AuthApi>().Named<AuthApi>(W88Operator.Name)
-    |> ignore
+    builder.RegisterType<W88AuthApi>().Named<AuthApi>(W88Operator.Name) |> ignore

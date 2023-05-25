@@ -30,7 +30,6 @@ let testCreateToken () =
           Sign = "xxx" }
 
     let result =
-        createTokenInternal "jwtId" user.Claims issuer expireTime secret authReq
-        
-    let exp ="eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjMsImlzcyI6Imlzc3VlciIsInRlc3QiOnRydWUsImN1cnJlbmN5IjoiUk1CIiwibmFtZSI6InNpbW9uIiwidG9rZW4iOiJ0b2tlbiIsIm9wZXJhdG9yIjoib3BlcmF0b3IiLCJhdWQiOiJjbGllbnRJZCIsImp0aSI6Imp3dElkIn0.1o_ZOJmAF20rpHtVqm1z0REyr8SYuSMLgspAk6TgyYslvygzdNdm0y7ZGasg_GcihIpRaIm0O0zV_rw2K-J_8g"
+        createTokenInternal user.Claims issuer expireTime secret authReq
+    let exp ="eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjMsImlzcyI6Imlzc3VlciIsInRlc3QiOnRydWUsImN1cnJlbmN5IjoiUk1CIiwibmFtZSI6InNpbW9uIiwidG9rZW4iOiJ0b2tlbiIsIm9wZXJhdG9yIjoib3BlcmF0b3IiLCJhdWQiOiJjbGllbnRJZCJ9.kLeiQ1spE2a3AErLVKO6JETHruzMZ_vXlCUOS0dW1It7xRQpJ8Po3TydHrlP4cgwIaktLVY7kuS1BHaLvi4YEw"
     Assert.Equal(exp, result)

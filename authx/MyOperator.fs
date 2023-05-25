@@ -20,6 +20,7 @@ let buildUri (operator: Operator) (token: string) =
     uriBuilder.Query <- query.ToString()
     uriBuilder.Uri
 
+[<RequireQualifiedAccess>]
 type AuthResult =
     | Success of UserClaims
     | Failed of string

@@ -5,7 +5,7 @@ open FsHttp
 open Xunit
 open authx.AuthRequest
 
-let baseUrl = "http://localhost:7070"
+let baseUrl = "http://localhost:5000"
 let authUrl = $"{baseUrl}/auth"
 
 [<Fact>]

@@ -12,6 +12,15 @@ exception OperatorNotFound of string
 exception InvalidAuthRequestSign of string
 exception UnSuccessfulResponse of string
 
+let findAuthApi (container: IComponentContext) (operator: string) =
+#if FUNPLAY
+    Some(FunPlay.authApi)
+#else
+    match container.TryResolveNamed<AuthApi>(operator) with
+    | true, service -> Some(service)
+    | _ -> None
+#endif
+
 type AuthTokenResult =
     | Success of string
     | Failed of exn
@@ -23,8 +32,8 @@ type AuthToken(clients: MyClients, myJwtToken: MyJwtToken, container: IComponent
             match clients.FindClientSecret authReq.ClientId with
             | Some(secret) ->
                 if authReq.CheckSign(secret) then
-                    match container.TryResolveNamed<AuthApi>(authReq.Operator) with
-                    | true, service ->
+                    match findAuthApi container authReq.Operator with
+                    | Some(service) ->
                         let! result = service.GetUserInfo(authReq.Token)
 
                         match result with
@@ -33,7 +42,7 @@ type AuthToken(clients: MyClients, myJwtToken: MyJwtToken, container: IComponent
                             return AuthTokenResult.Success(token)
                         | AuthResult.Failed(s) -> return AuthTokenResult.Failed(UnSuccessfulResponse(s))
                         | AuthResult.UnknownError(ex) -> return AuthTokenResult.Failed(ex)
-                    | _ -> return AuthTokenResult.Failed(OperatorNotFound(authReq.Operator))
+                    | None -> return AuthTokenResult.Failed(OperatorNotFound(authReq.Operator))
                 else
                     return Failed(InvalidAuthRequestSign(authReq.Sign))
             | None -> return Failed(ClientNotFound(authReq.ClientId))

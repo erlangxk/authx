@@ -35,7 +35,6 @@ module MyJwtToken =
           MyJwtClaims.audience, authReq.ClientId ]
 
     let createTokenInternal
-        (jwtId: string)
         (userClaims: UserClaims)
         (issuer: string)
         (expireTime: int64)
@@ -48,7 +47,6 @@ module MyJwtToken =
                 yield! configClaims issuer expireTime
                 yield! userClaims
                 yield! authReqClaims authReq
-                yield MyJwtClaims.jwtId, jwtId
             }
             |> dict
 
@@ -61,9 +59,8 @@ module MyJwtToken =
         (clientSecret: string)
         (authReq: AuthRequest)
         : string =
-        let jwtId = Guid.NewGuid().ToString()
         let expireTime = DateTimeOffset.UtcNow.AddMinutes(ttl).ToUnixTimeSeconds()
-        createTokenInternal jwtId user issuer expireTime clientSecret authReq
+        createTokenInternal user issuer expireTime clientSecret authReq
 
     [<CLIMutable>]
     type JwtConfig = { Issuer: string; Ttl: int }
