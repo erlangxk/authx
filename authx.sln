@@ -4,6 +4,11 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "authx", "authx\authx.fsproj
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "authx.tests", "authx.tests\authx.tests.fsproj", "{37D2620B-962C-465D-87B0-06F23CF3E177}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{19C45DC7-E0C2-41A1-877C-FD3E254D3926}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

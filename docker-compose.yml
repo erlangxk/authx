@@ -1,0 +1,8 @@
+﻿services:
+  authx:
+    image: authx
+    build:
+      context: .
+      dockerfile: authx/Dockerfile
+    ports:
+        - "7070:80"

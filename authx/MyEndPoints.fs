@@ -23,30 +23,7 @@ module MyEndPoints =
     let authHandler: HttpHandler =
         Services.inject<AuthToken.AuthToken> (fun auth ctx -> ctx |> Request.mapJson (processAuth auth))
 
-    let configHandler: HttpHandler =
-        Services.inject<IOptions<W88Operator.W88Operator>> (fun op ->
-            fun ctx -> ctx |> Response.ofPlainText (op.Value.ToString()))
-
-    let clientsHandler: HttpHandler =
-        Services.inject<IOptions<MyClients.Clients>> (fun op ->
-            fun ctx -> ctx |> Response.ofPlainText (op.Value.ToString()))
-
-    let userInfoHandler: HttpHandler =
-        Services.inject<IComponentContext> (fun container ->
-            fun ctx ->
-                task {
-                    match container.TryResolveNamed<AuthApi>(W88Operator.W88Operator.Name) with
-                    | true, service ->
-                        let! result = service.GetUserInfo "token"
-                        return! ctx |> Response.ofPlainText (result.ToString())
-                    | false, _ ->
-                        return! ctx |> SharedHandlers.badRequest $"{W88Operator.W88Operator.Name} not found"
-
-                })
-
+ 
     let lists: list<HttpEndpoint> =
         [ get "/" (Response.ofPlainText "Hello World")
-          post "/auth" authHandler
-          get "/config" configHandler
-          get "/clients" clientsHandler
-          get "/user" userInfoHandler ]
+          post "/auth" authHandler]

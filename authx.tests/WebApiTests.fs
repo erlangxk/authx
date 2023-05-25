@@ -5,9 +5,12 @@ open FsHttp
 open Xunit
 open authx.AuthRequest
 
+let baseUrl = "http://localhost:7070"
+let authUrl = $"{baseUrl}/auth"
+
 [<Fact>]
 let testHelloWorld () =
-    let res = http { GET "http://localhost:8888" } |> Request.send |> Response.toText
+    let res = http { GET baseUrl } |> Request.send |> Response.toText
     Assert.Equal("Hello World", res)
 
 
@@ -18,7 +21,7 @@ let testAuthClientNotFound () =
         let operator = "operator"
         let token = "token"
         http {
-            POST "http://localhost:8888/auth"
+            POST authUrl
             body
             json
                 $"""{{
@@ -42,7 +45,7 @@ let testAuthInvalidSign () =
         let operator = "w88"
         let token = "token"
         http {
-            POST "http://localhost:8888/auth"
+            POST authUrl
             body
             json
                 $"""{{
@@ -67,7 +70,7 @@ let testAuthOperatorNotFound () =
         let token = "token"
         let sign = checkSum clientId operator token "client1Secret"
         http {
-            POST "http://localhost:8888/auth"
+            POST authUrl
             body
             json
                 $"""{{
@@ -93,7 +96,7 @@ let testAuth () =
         let sign = checkSum clientId operator token "client1Secret"
 
         http {
-            POST "http://localhost:8888/auth"
+            POST authUrl
             body
             json
                 $"""{{
