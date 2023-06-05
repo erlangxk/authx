@@ -5,7 +5,7 @@ open FsHttp
 open Xunit
 open authx.AuthRequest
 
-let baseUrl = "http://localhost:5000"
+let baseUrl = "http://localhost:5124"
 let authUrl = $"{baseUrl}/auth"
 
 [<Fact>]
@@ -32,10 +32,10 @@ let testAuthClientNotFound () =
                        }}"""
         }
         |> Request.send
-        |> Response.assertHttpStatusCode HttpStatusCode.BadRequest
-        |> Response.toText
+        |> Response.assertHttpStatusCode HttpStatusCode.OK
+        |> Response.toJson
 
-    Assert.Equal(@"Bad request:ClientNotFound ""first_client""", res)
+    Assert.Equal(1001, res.GetProperty("code").GetInt32())
 
 
 [<Fact>]
@@ -56,10 +56,10 @@ let testAuthInvalidSign () =
                        }}"""
         }
         |> Request.send
-        |> Response.assertHttpStatusCode HttpStatusCode.BadRequest
-        |> Response.toText
+        |> Response.assertHttpStatusCode HttpStatusCode.OK
+        |> Response.toJson
 
-    Assert.Equal(@"Bad request:InvalidAuthRequestSign ""xxx""", res)
+    Assert.Equal(1002, res.GetProperty("code").GetInt32())
 
 [<Fact>]
 let testAuthOperatorNotFound () =
@@ -81,10 +81,10 @@ let testAuthOperatorNotFound () =
                        }}"""
         }
         |> Request.send
-        |> Response.assertHttpStatusCode HttpStatusCode.BadRequest
-        |> Response.toText
-
-    Assert.Equal(@"Bad request:OperatorNotFound ""operator""", res)
+        |> Response.assertHttpStatusCode HttpStatusCode.OK
+        |> Response.toJson
+    
+    Assert.Equal(1003, res.GetProperty("code").GetInt32())
 
 
 [<Fact>]
@@ -107,6 +107,5 @@ let testAuth () =
                        }}"""
         }
         |> Request.send
-        |> Response.toText
-    printfn $"{res}"
-    Assert.Equal(@"Bad request:OperatorNotFound ""operator""", res)
+        |> Response.toJson
+    Assert.Equal(2000, res.GetProperty("code").GetInt32())

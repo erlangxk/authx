@@ -5,18 +5,21 @@ open Falco.Routing
 open Microsoft.AspNetCore.Http
 open System.Threading.Tasks
 open AuthRequest
+open Microsoft.Extensions.Logging
 open Microsoft.FSharp.Control
-open authx.AuthToken
+open System.Text
 open Microsoft.Extensions.Options
 open Autofac
 
-
 module MyEndPoints =
+    let ofJson (str: string) : HttpHandler =
+        Response.withContentType "application/json; charset=utf-8"
+        >> Response.ofString Encoding.UTF8 str
+
     let processAuth (auth: AuthToken.AuthToken) (authReq: AuthRequest) (ctx: HttpContext) : Task =
         task {
-            match! auth.GetUserInfo(authReq) with
-            | AuthTokenResult.Success(token) -> return! ctx |> Response.ofPlainText token
-            | AuthTokenResult.Failed(ex) -> return! ctx |> SharedHandlers.badRequest ex.Message
+            let! result = auth.GetUserInfo(authReq)
+            return! result |> AuthToken.toJson |> ofJson <| ctx
         }
 
     let authHandler: HttpHandler =
@@ -31,16 +34,19 @@ module MyEndPoints =
             fun ctx -> ctx |> Response.ofPlainText (op.Value.ToString()))
 
     let userInfoHandler: HttpHandler =
-        Services.inject<IComponentContext> (fun container ->
+        Services.inject<IComponentContext, ILogger<MyOperator.AuthApi>> (fun container logger ->
             fun ctx ->
                 task {
-                    match container.TryResolveNamed<MyOperator.AuthApi>(W88Operator.W88Operator.Name) with
-                    | true, service ->
-                        let! result = service.GetUserInfo "token"
-                        return! ctx |> Response.ofPlainText (result.ToString())
-                    | false, _ ->
-                        return! ctx |> SharedHandlers.badRequest $"{W88Operator.W88Operator.Name} not found"
-
+                    try
+                        match container.TryResolveNamed<MyOperator.AuthApi>(W88Operator.W88Operator.Name) with
+                        | true, service ->
+                            let! result = service.GetUserInfo "token"
+                            return! ctx |> Response.ofPlainText (result.ToString())
+                        | false, _ ->
+                            return! ctx |> SharedHandlers.badRequest $"{W88Operator.W88Operator.Name} not found"
+                    with ex ->
+                        logger.LogError(ex, "Error resolving service")
+                        return! ctx |> SharedHandlers.serverError ex.Message
                 })
 
     let lists: list<HttpEndpoint> =

@@ -24,6 +24,7 @@
     <ItemGroup>
         <PackageReference Include="Autofac" Version="7.0.1" />
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
+        <PackageReference Include="Thoth.Json.Net" Version="11.0.0" />
         <PackageReference Include="Falco" Version="4.0.4" />
         <PackageReference Include="jose-jwt" Version="4.1.0" />
     </ItemGroup>

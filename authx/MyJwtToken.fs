@@ -65,10 +65,3 @@ module MyJwtToken =
     [<CLIMutable>]
     type JwtConfig = { Issuer: string; Ttl: int }
 
-    type MyJwtToken(config: IOptions<JwtConfig>) =
-        let cfg = config.Value
-        member this.Config = (cfg.Issuer, cfg.Ttl)
-
-    let configJwtToken (config: IConfiguration, svc: IServiceCollection) =
-        let jwt = config.GetSection("JWT")
-        svc.Configure<JwtConfig>(jwt).AddSingleton<MyJwtToken>() |> ignore
