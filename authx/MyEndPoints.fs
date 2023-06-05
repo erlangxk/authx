@@ -15,23 +15,23 @@ module MyEndPoints =
         Response.withContentType "application/json; charset=utf-8"
         >> Response.ofString Encoding.UTF8 str
 
-    let processAuth (auth: AuthToken.AuthToken) (authReq: AuthRequest) (ctx: HttpContext) : Task =
+    let processAuth (auth: AuthHandler) (authReq: AuthRequest) (ctx: HttpContext) : Task =
         task {
             let! result = auth.GetUserInfo(authReq)
-            let json = result |> AuthToken.toJson
+            let json = result |> AuthHandler.toJson
             match result with
-            | AuthToken.Success _ | AuthToken.Failure _ ->
+            | AuthResponse.Success _ | AuthResponse.Failure _ ->
                 return! ctx |> ofJson json
-            | AuthToken.InvalidSign _ ->
+            | AuthResponse.InvalidSign _ ->
                 return! ctx |> SharedHandlers.badRequest json
-            | AuthToken.OperatorNotFound _ | AuthToken.ClientNotFound _ ->
+            | AuthResponse.OperatorNotFound _ | AuthResponse.ClientNotFound _ ->
                 return! ctx |>  SharedHandlers.notFound json
-            | AuthToken.UnknownError _ ->
+            | AuthResponse.UnknownError _ ->
                 return! ctx |> SharedHandlers.serverError json
         }
 
     let authHandler: HttpHandler =
-        Services.inject<AuthToken.AuthToken> (fun auth ctx -> ctx |> Request.mapJson (processAuth auth))
+        Services.inject<AuthHandler> (fun auth ctx -> ctx |> Request.mapJson (processAuth auth))
 
     let configHandler: HttpHandler =
         Services.inject<IOptions<W88Operator>> (fun op ->

@@ -23,7 +23,7 @@ module Program =
         let cfg = context.Configuration
         MyClients.configClients (cfg, svc)
         W88Operator.configW88Operator (cfg, svc)
-        AuthToken.configAuthToken (cfg, svc)
+        MyAuthHandler.configAuthHandler (cfg, svc)
 
     let addAutofacConfig (builder: ContainerBuilder) = W88Operator.registerW88Auth builder
 

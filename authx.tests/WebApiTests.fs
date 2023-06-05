@@ -3,7 +3,7 @@ module WebApiTests
 open System.Net
 open FsHttp
 open Xunit
-open authx.AuthRequest
+open authx.AuthHandler
 
 let baseUrl = "http://localhost:5124"
 let authUrl = $"{baseUrl}/auth"

@@ -9,14 +9,14 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <Compile Include="AuthRequest.fs" />
+        <Compile Include="AuthHandler.fs" />
         <Compile Include="JwtToken.fs" />
         <Compile Include="Operator.fs" />
         <Compile Include="AuthApi.fs" />
         <Compile Include="MyClients.fs" />
         <Compile Include="W88Operator.fs" />
         <Compile Include="FunPlay.fs" />
-        <Compile Include="AuthToken.fs" />
+        <Compile Include="MyAuthHandler.fs" />
         <Compile Include="SharedHandlers.fs" />
         <Compile Include="MyEndPoints.fs" />
         <Compile Include="Program.fs" />
