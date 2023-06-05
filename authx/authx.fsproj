@@ -10,13 +10,14 @@
     
     <ItemGroup>
         <Compile Include="AuthRequest.fs" />
-        <Compile Include="MyJwtToken.fs" />
-        <Compile Include="MyOperator.fs" />
+        <Compile Include="JwtToken.fs" />
+        <Compile Include="Operator.fs" />
+        <Compile Include="AuthApi.fs" />
         <Compile Include="MyClients.fs" />
         <Compile Include="W88Operator.fs" />
         <Compile Include="FunPlay.fs" />
-        <Compile Include="SharedHandlers.fs" />
         <Compile Include="AuthToken.fs" />
+        <Compile Include="SharedHandlers.fs" />
         <Compile Include="MyEndPoints.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>

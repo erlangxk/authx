@@ -32,7 +32,7 @@ let testAuthClientNotFound () =
                        }}"""
         }
         |> Request.send
-        |> Response.assertHttpStatusCode HttpStatusCode.OK
+        |> Response.assertHttpStatusCode HttpStatusCode.NotFound
         |> Response.toJson
 
     Assert.Equal(1001, res.GetProperty("code").GetInt32())
@@ -56,7 +56,7 @@ let testAuthInvalidSign () =
                        }}"""
         }
         |> Request.send
-        |> Response.assertHttpStatusCode HttpStatusCode.OK
+        |> Response.assertHttpStatusCode HttpStatusCode.BadRequest
         |> Response.toJson
 
     Assert.Equal(1002, res.GetProperty("code").GetInt32())
@@ -81,7 +81,7 @@ let testAuthOperatorNotFound () =
                        }}"""
         }
         |> Request.send
-        |> Response.assertHttpStatusCode HttpStatusCode.OK
+        |> Response.assertHttpStatusCode HttpStatusCode.NotFound
         |> Response.toJson
     
     Assert.Equal(1003, res.GetProperty("code").GetInt32())
@@ -107,5 +107,6 @@ let testAuth () =
                        }}"""
         }
         |> Request.send
+        |> Response.assertHttpStatusCode HttpStatusCode.InternalServerError
         |> Response.toJson
     Assert.Equal(2000, res.GetProperty("code").GetInt32())

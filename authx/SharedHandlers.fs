@@ -5,7 +5,10 @@ open Falco
 module SharedHandlers =
 
     let badRequest msg : HttpHandler =
-        Response.withStatusCode 400 >> Response.ofPlainText $"{msg}"
+        Response.withStatusCode 400 >> Response.ofPlainText msg
+    
+    let notFound msg : HttpHandler =
+        Response.withStatusCode 404 >> Response.ofPlainText msg
 
     let serverError msg: HttpHandler =
-        Response.withStatusCode 500 >> Response.ofPlainText $"{msg}"
+        Response.withStatusCode 500 >> Response.ofPlainText msg

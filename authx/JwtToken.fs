@@ -2,14 +2,15 @@ namespace authx
 
 open System
 open System.Text
-open AuthRequest
 open Jose
-open Microsoft.Extensions.Options
-open Microsoft.Extensions.Configuration
-open Microsoft.Extensions.DependencyInjection
 
-module MyJwtClaims =
-    let jwtId = "jti"
+[<CLIMutable>]
+type JwtConfig = { Issuer: string; Ttl: int }
+
+type Claim = string * obj
+type UserClaims = seq<Claim>
+
+module JwtClaims =
     let issuer = "iss"
     let subject = "sub"
     let audience = "aud"
@@ -20,28 +21,23 @@ module MyJwtClaims =
     let test = "test"
     let currency = "currency"
 
-
-module MyJwtToken =
-
-    type Claim = string * obj
-    type UserClaims = seq<Claim>
+module JwtToken =
 
     let configClaims (issuer: string) (expireTime: int64) : UserClaims =
-        [ MyJwtClaims.expirationTime, expireTime; MyJwtClaims.issuer, issuer ]
+        [ JwtClaims.expirationTime, expireTime; JwtClaims.issuer, issuer ]
 
     let authReqClaims (authReq: AuthRequest) : UserClaims =
-        [ MyJwtClaims.token, authReq.Token
-          MyJwtClaims.operator, authReq.Operator
-          MyJwtClaims.audience, authReq.ClientId ]
+        [ JwtClaims.token, authReq.Token
+          JwtClaims.operator, authReq.Operator
+          JwtClaims.audience, authReq.ClientId ]
 
     let createTokenInternal
-        (userClaims: UserClaims)
-        (issuer: string)
         (expireTime: int64)
+        (issuer: string)
+        (userClaims: UserClaims)
         (clientSecret: string)
         (authReq: AuthRequest)
         : string =
-
         let claims =
             seq {
                 yield! configClaims issuer expireTime
@@ -53,15 +49,6 @@ module MyJwtToken =
         let secretKey = Encoding.UTF8.GetBytes(clientSecret)
         JWT.Encode(claims, secretKey, JwsAlgorithm.HS512)
 
-    let createToken
-        (user: UserClaims)
-        (issuer: string, ttl: int)
-        (clientSecret: string)
-        (authReq: AuthRequest)
-        : string =
+    let createToken (ttl: int) =
         let expireTime = DateTimeOffset.UtcNow.AddMinutes(ttl).ToUnixTimeSeconds()
-        createTokenInternal user issuer expireTime clientSecret authReq
-
-    [<CLIMutable>]
-    type JwtConfig = { Issuer: string; Ttl: int }
-
+        createTokenInternal expireTime

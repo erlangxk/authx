@@ -4,7 +4,6 @@ open System.IO
 open Xunit
 open authx
 open System.Text
-open authx.MyOperator
 
 let readAndParse (s: string) =
     let stream = new MemoryStream(Encoding.UTF8.GetBytes(s))
@@ -41,7 +40,7 @@ let ``test read xml ok`` () =
         | AuthResult.Success m -> Map.ofSeq m
         | _ -> Map.empty
 
-    Assert.Equal("RMB", claims[ MyJwtClaims.currency ].ToString())
+    Assert.Equal("RMB", claims[ JwtClaims.currency ].ToString())
 
 
 let xml2 =
