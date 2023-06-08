@@ -30,6 +30,14 @@ type W88Operator =
               "token", token ]
 
 module W88Operator =
+    
+    let interestedKeys = set [
+        "statusCode"
+        "currency"
+        "memberId"
+        "memberCode"
+        "testAccount"
+    ]
     let readXml (xml: Stream) =
         use reader = XmlReader.Create(xml)
         reader.MoveToContent() |> ignore
@@ -38,8 +46,9 @@ module W88Operator =
             while reader.Read() do
                 if (reader.NodeType = XmlNodeType.Element) then
                     let name = reader.Name
-                    reader.Read() |> ignore
-                    yield (name, reader.Value)
+                    if interestedKeys.Contains(name) then
+                        let content = reader.ReadElementContentAsString()
+                        yield (name, content)
         }
         |> Map.ofSeq
 

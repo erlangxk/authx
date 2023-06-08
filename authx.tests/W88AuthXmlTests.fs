@@ -1,4 +1,4 @@
-module AuthXmlTests
+module W88AuthXmlTests
 
 open System.IO
 open Xunit
