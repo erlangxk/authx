@@ -5,7 +5,7 @@ open FsHttp
 open Xunit
 open authx.AuthHandler
 
-let baseUrl = "http://localhost:5124"
+let baseUrl = "http://localhost:7070"
 let authUrl = $"{baseUrl}/auth"
 
 [<Fact>]
@@ -81,9 +81,9 @@ let testAuthOperatorNotFound () =
                        }}"""
         }
         |> Request.send
-        |> Response.assertHttpStatusCode HttpStatusCode.NotFound
+        |> Response.assertHttpStatusCode HttpStatusCode.OK
         |> Response.toJson
-    
+   
     Assert.Equal(1003, res.GetProperty("code").GetInt32())
 
 

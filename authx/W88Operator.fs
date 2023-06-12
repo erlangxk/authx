@@ -83,8 +83,8 @@ module W88Operator =
                 try
                     use httpClient = httpClientFactory.CreateClient()
                     httpClient.Timeout <- TimeSpan.FromSeconds(30.0)
-                    let! res = httpClient.PostAsync(uri, null)
-                    let! stream = res.EnsureSuccessStatusCode().Content.ReadAsStreamAsync()
+                    use! res = httpClient.PostAsync(uri, null)
+                    use! stream = res.EnsureSuccessStatusCode().Content.ReadAsStreamAsync()
                     return stream |> (readXml >> parseDict)
                 with ex ->
                     log.LogError(ex, "auth error")

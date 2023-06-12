@@ -22,9 +22,11 @@ module MyEndPoints =
             match result with
             | AuthResponse.Success _ | AuthResponse.Failure _ ->
                 return! ctx |> ofJson json
+            |AuthResponse.OperatorNotFound _ ->
+                return! ctx |> ofJson json
             | AuthResponse.InvalidSign _ ->
                 return! ctx |> SharedHandlers.badRequest json
-            | AuthResponse.OperatorNotFound _ | AuthResponse.ClientNotFound _ ->
+            | AuthResponse.ClientNotFound _ ->
                 return! ctx |>  SharedHandlers.notFound json
             | AuthResponse.UnknownError _ ->
                 return! ctx |> SharedHandlers.serverError json
