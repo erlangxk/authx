@@ -5,24 +5,26 @@ open FsHttp
 open Xunit
 open authx.AuthHandler
 
-let baseUrl = "http://localhost:7070"
+let baseUrl = "http://localhost:7071"
 let authUrl = $"{baseUrl}/auth"
 
 [<Fact>]
 let testHelloWorld () =
-    let res = http { GET baseUrl } |> Request.send |> Response.toText
-    Assert.Equal("Hello World", res)
+    let res = http { GET $"{baseUrl}/hc" } |> Request.send |> Response.toText
+    Assert.Equal("Hello", res)
 
 
 [<Fact>]
 let testAuthClientNotFound () =
+    let clientId = "first_client"
+    let operator = "operator"
+    let token = "token"
+
     let res =
-        let clientId = "first_client"
-        let operator = "operator"
-        let token = "token"
         http {
             POST authUrl
             body
+
             json
                 $"""{{
                     "clientId":"{clientId}",
@@ -32,46 +34,50 @@ let testAuthClientNotFound () =
                        }}"""
         }
         |> Request.send
-        |> Response.assertHttpStatusCode HttpStatusCode.NotFound
-        |> Response.toJson
+        |> Response.assertStatusCode 451
+        |> Response.toText
 
-    Assert.Equal(1001, res.GetProperty("code").GetInt32())
+    Assert.Equal($"Client:{clientId} not found", res)
 
 
 [<Fact>]
 let testAuthInvalidSign () =
+    let clientId = "client1"
+    let operator = "w88"
+    let token = "token"
+    let sign = "xxx"
+
     let res =
-        let clientId = "client1"
-        let operator = "w88"
-        let token = "token"
         http {
             POST authUrl
             body
+
             json
                 $"""{{
                     "clientId":"{clientId}",
                     "operator":"{operator}",
                     "token":"{token}",
-                    "sign": "xxx"
+                    "sign":"{sign}"
                        }}"""
         }
         |> Request.send
-        |> Response.assertHttpStatusCode HttpStatusCode.BadRequest
-        |> Response.toJson
+        |> Response.assertStatusCode 453
+        |> Response.toText
 
-    Assert.Equal(1002, res.GetProperty("code").GetInt32())
+    Assert.Equal($"Invalid sign:{sign}", res)
 
 [<Fact>]
 let testAuthOperatorNotFound () =
+    let clientId = "client1"
+    let operator = "operator"
+    let token = "token"
+    let sign = checkSum clientId operator token "client1Secret"
+
     let res =
-       
-        let clientId = "client1"
-        let operator = "operator"
-        let token = "token"
-        let sign = checkSum clientId operator token "client1Secret"
         http {
             POST authUrl
             body
+
             json
                 $"""{{
                     "clientId":"{clientId}",
@@ -81,23 +87,24 @@ let testAuthOperatorNotFound () =
                        }}"""
         }
         |> Request.send
-        |> Response.assertHttpStatusCode HttpStatusCode.OK
-        |> Response.toJson
-   
-    Assert.Equal(1003, res.GetProperty("code").GetInt32())
+        |> Response.assertStatusCode 452
+        |> Response.toText
+
+    Assert.Equal($"Operator {operator} not found", res)
 
 
 [<Fact>]
 let testAuth () =
-    let res =
-        let clientId = "client1"
-        let operator = "w88"
-        let token = "token"
-        let sign = checkSum clientId operator token "client1Secret"
+    let clientId = "client1"
+    let operator = "w88"
+    let token = "token"
+    let sign = checkSum clientId operator token "client1Secret"
 
+    let res =
         http {
             POST authUrl
             body
+
             json
                 $"""{{
                     "clientId":"{clientId}",
@@ -107,6 +114,7 @@ let testAuth () =
                        }}"""
         }
         |> Request.send
-        |> Response.assertHttpStatusCode HttpStatusCode.InternalServerError
-        |> Response.toJson
-    Assert.Equal(2000, res.GetProperty("code").GetInt32())
+        |> Response.assertStatusCode 200
+        |> Response.toText
+
+    Assert.True(res.Length > 0)

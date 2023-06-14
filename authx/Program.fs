@@ -44,7 +44,7 @@ module Program =
 
             use_ifnot
                 FalcoExtensions.IsDevelopment
-                (FalcoExtensions.UseFalcoExceptionHandler (SharedHandlers.serverError "Server Error"))
+                (FalcoExtensions.UseFalcoExceptionHandler (MyEndPoints.serverError "Server Error"))
 
             add_http_client
             endpoints MyEndPoints.lists

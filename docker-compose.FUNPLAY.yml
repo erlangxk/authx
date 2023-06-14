@@ -1,8 +1,8 @@
 ﻿services:
   authx:
-    image: authx
+    image: authx:funplay
     build:
       context: .
       dockerfile: authx/Dockerfile_FUNPLAY
     ports:
-        - "7070:80"
+        - "7071:80"
