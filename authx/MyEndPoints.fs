@@ -13,10 +13,10 @@ module MyEndPoints =
     let serverError msg =
         myStatusCode StatusCodes.Status500InternalServerError msg
 
-    let private ERR_FAILED_AUTH = 450
-    let private ERR_CLIENT_NOT_FOUND = 451
-    let private ERR_OPERATOR_NOT_FOUND = 452
-    let private ERR_INVALID_SIGN = 453
+    let private ERR_FAILED_AUTH = 460
+    let private ERR_CLIENT_NOT_FOUND = 461
+    let private ERR_OPERATOR_NOT_FOUND = 462
+    let private ERR_INVALID_SIGN = 463
 
     let processAuth (auth: AuthHandler) (authReq: AuthRequest) (ctx: HttpContext) : Task =
         task {

@@ -34,7 +34,7 @@ let testAuthClientNotFound () =
                        }}"""
         }
         |> Request.send
-        |> Response.assertStatusCode 451
+        |> Response.assertStatusCode 461
         |> Response.toText
 
     Assert.Equal($"Client:{clientId} not found", res)
@@ -61,7 +61,7 @@ let testAuthInvalidSign () =
                        }}"""
         }
         |> Request.send
-        |> Response.assertStatusCode 453
+        |> Response.assertStatusCode 463
         |> Response.toText
 
     Assert.Equal($"Invalid sign:{sign}", res)
@@ -87,7 +87,7 @@ let testAuthOperatorNotFound () =
                        }}"""
         }
         |> Request.send
-        |> Response.assertStatusCode 452
+        |> Response.assertStatusCode 462
         |> Response.toText
 
     Assert.Equal($"Operator {operator} not found", res)
