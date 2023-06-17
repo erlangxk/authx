@@ -5,7 +5,7 @@
         <SelfContained>true</SelfContained>
         <PublishSingleFile>true</PublishSingleFile>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-        <DefineConstants>$(MyBuildSwitch)</DefineConstants>
+        <DefineConstants Condition="'$(FUNPLAY)' == 'true'">$(DefineConstants);FUNPLAY</DefineConstants>
     </PropertyGroup>
     
     <ItemGroup>

@@ -11,7 +11,7 @@ let authUrl = $"{baseUrl}/auth"
 [<Fact>]
 let testHelloWorld () =
     let res = http { GET $"{baseUrl}/hc" } |> Request.send |> Response.toText
-    Assert.Equal("Hello", res)
+    Assert.Equal("ok", res)
 
 
 [<Fact>]

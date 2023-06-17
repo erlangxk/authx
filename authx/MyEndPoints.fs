@@ -37,4 +37,4 @@ module MyEndPoints =
         Services.inject<AuthHandler> (fun auth ctx -> ctx |> Request.mapJson (processAuth auth))
 
     let lists: list<HttpEndpoint> =
-        [ get "/hc" (Response.ofPlainText "Hello"); post "/auth" authHandler ]
+        [ get "/hc" (Response.ofPlainText "ok"); post "/auth" authHandler ]

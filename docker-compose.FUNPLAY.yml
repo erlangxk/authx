@@ -3,6 +3,8 @@
     image: authx:funplay
     build:
       context: .
-      dockerfile: authx/Dockerfile_FUNPLAY
+      args:
+        - FUNPLAY=true
+      dockerfile: authx/Dockerfile
     ports:
-        - "7071:80"
+      - "7071:80"

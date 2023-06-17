@@ -3,6 +3,8 @@
     image: authx
     build:
       context: .
+      args:
+        - FUNPLAY=false
       dockerfile: authx/Dockerfile
     ports:
-        - "7070:80"
+      - "7070:80"
