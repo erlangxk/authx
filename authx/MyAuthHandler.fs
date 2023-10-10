@@ -7,7 +7,7 @@ open Microsoft.Extensions.DependencyInjection
 open Microsoft.Extensions.Options
 
 module MyAuthHandler =
-   
+
     let findAuthApi (container: IComponentContext) (operator: string) =
 #if FUNPLAY
         Some(FunPlay.authApi)
@@ -21,7 +21,7 @@ module MyAuthHandler =
         let jwtCfg = jwt.Value
         let createToken = JwtToken.createToken jwtCfg.Ttl jwtCfg.Issuer
 
-        interface AuthHandler with 
+        interface AuthHandler with
             member this.GetUserInfo(authReq: AuthRequest) : Task<AuthResponse> =
                 task {
                     match clients.FindClientSecret authReq.ClientId with
@@ -41,5 +41,9 @@ module MyAuthHandler =
                 }
 
     let configAuthHandler (cfg: IConfiguration, svc: IServiceCollection) =
-        svc.Configure<JwtConfig>(cfg.GetSection("JWT")).AddSingleton<AuthHandler,MyAuthHandler>()
+        let bind jwt = cfg.GetSection("JWT").Bind(jwt)
+
+        svc
+            .ConfigureAndValidate<JwtConfig>(bind)
+            .AddSingleton<AuthHandler, MyAuthHandler>()
         |> ignore

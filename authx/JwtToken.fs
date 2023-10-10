@@ -1,11 +1,17 @@
 namespace authx
 
 open System
+open System.ComponentModel.DataAnnotations
 open System.Text
 open Jose
 
 [<CLIMutable>]
-type JwtConfig = { Issuer: string; Ttl: int }
+type JwtConfig =
+    { [<Required>]
+      Issuer: string
+
+      [<Required>]
+      Ttl: int }
 
 type Claim = string * obj
 type UserClaims = seq<Claim>

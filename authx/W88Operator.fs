@@ -1,5 +1,6 @@
 namespace authx
 
+open System.ComponentModel.DataAnnotations
 open Autofac
 open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
@@ -12,9 +13,17 @@ open Microsoft.Extensions.Options
 
 [<CLIMutable>]
 type W88Operator =
-    { Url: string
+    { [<Required>]
+      [<Url>]
+      Url: string
+
+      [<Required>]
       OperatorId: string
+
+      [<Required>]
       Wallet: string
+
+      [<Required>]
       SecretKey: string }
 
     static member Name = "w88"
@@ -30,14 +39,10 @@ type W88Operator =
               "token", token ]
 
 module W88Operator =
-    
-    let interestedKeys = set [
-        "statusCode"
-        "currency"
-        "memberId"
-        "memberCode"
-        "testAccount"
-    ]
+
+    let interestedKeys =
+        set [ "statusCode"; "currency"; "memberId"; "memberCode"; "testAccount" ]
+
     let readXml (xml: Stream) =
         use reader = XmlReader.Create(xml)
         reader.MoveToContent() |> ignore
@@ -46,6 +51,7 @@ module W88Operator =
             while reader.Read() do
                 if (reader.NodeType = XmlNodeType.Element) then
                     let name = reader.Name
+
                     if interestedKeys.Contains(name) then
                         let content = reader.ReadElementContentAsString()
                         yield (name, content)
@@ -95,8 +101,10 @@ module W88Operator =
             member this.GetUserInfo(token: string) = Operator.buildUri w88Op token |> doAuth
 
     let configW88Operator (config: IConfiguration, svc: IServiceCollection) =
-        let w88 = config.GetSection(W88Operator.Name)
-        svc.Configure<W88Operator>(w88) |> ignore
+        let bind w88 =
+            config.GetSection(W88Operator.Name).Bind(w88)
+
+        svc.ConfigureAndValidate<W88Operator>(bind) |> ignore
 
     let registerW88Auth (builder: ContainerBuilder) =
         builder.RegisterType<W88AuthApi>().Named<AuthApi>(W88Operator.Name) |> ignore
